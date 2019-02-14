@@ -1,7 +1,7 @@
 CC=gcc
 LD=gcc
 OPTIMIZATIONS=-O3 -fdata-sections -ffunction-sections -fmerge-all-constants -flto -fuse-linker-plugin -Wl,--gc-sections
-CFLAGS=-Wall $(OPTIMIZATIONS) -I../ -DMATHUTIL_DETECT_SIMD
+CFLAGS=-Wall $(OPTIMIZATIONS) -I../
 LDLIBS=-lmathutil
 LDFLAGS=$(OPTIMIZATIONS)
 

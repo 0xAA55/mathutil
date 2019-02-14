@@ -30,11 +30,17 @@ typedef float real_t, *real_p;
 #endif // !MATHUTIL_USE_DOUBLE
 
 #if defined(_MSC_VER)
-#define ALIGNED_(x) __declspec(align(x))
+#  define ALIGNED_(x) __declspec(align(x))
+#  ifndef MATHUTIL_DETECT_SIMD
+#    define MATHUTIL_DETECT_SIMD 1
+#  endif
 #elif defined(__GNUC__)
-#define ALIGNED_(x) __attribute__ ((aligned(x)))
+#  define ALIGNED_(x) __attribute__ ((aligned(x)))
+#  ifndef MATHUTIL_DETECT_SIMD
+#    define MATHUTIL_DETECT_SIMD 0
+#  endif
 #else
-#define ALIGNED_(x)
+#  define ALIGNED_(x)
 #endif
 #define MATHUTIL_NOT_ALIGNED 1
 #define MATHUTIL_ASSUME_ALIGNED 0

@@ -36,6 +36,7 @@ math_func(vr,vec4_t,vec4_div, (vec4_t v1, vec4_t v2), (v1, v2));
 math_func(vr,vec4_t,vec4_min, (vec4_t v1, vec4_t v2), (v1, v2));
 math_func(vr,vec4_t,vec4_max, (vec4_t v1, vec4_t v2), (v1, v2));
 math_func(vr,vec4_t,vec4_cross, (vec4_t v1, vec4_t v2), (v1, v2));
+math_func(vr,vec4_t,vec4_clamp, (vec4_t v, real_t min_, real_t max_), (v, min_, max_));
 math_func(vr,vec4_t,vec4_rot_quat, (vec4_t v, quat_t q), (v, q));
 math_func(vr,vec4_t,vec4_mul_mat4, (vec4_t v, mat4_t m), (v, m));
 math_func(vr,vec4_t,vec4_mul_mat4_transpose, (vec4_t v, mat4_t m), (v, m));

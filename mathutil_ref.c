@@ -292,6 +292,17 @@ base_func(vec4_t,vec4_lerp)(vec4_t v1, vec4_t v2, real_t s)
 	);
 }
 
+base_func(vec4_t,vec4_clamp)(vec4_t v, real_t min_, real_t max_)
+{
+	return vec4
+	(
+		r_clamp(v.x, min_, max_),
+		r_clamp(v.y, min_, max_),
+		r_clamp(v.z, min_, max_),
+		r_clamp(v.w, min_, max_)
+	);
+}
+
 base_func(vec4_t,vec4_slerp)(vec4_t v1, vec4_t v2, real_t s)
 {
 	s = r_hermite(r_clamp(s, 0, 1));

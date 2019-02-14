@@ -437,6 +437,18 @@ mathsimd_func(vec4_t,vec4_max_sse)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
+mathsimd_func(vec4_t,vec4_clamp_sse)(vec4_t v, real_t min_, real_t max_)
+{
+	vec4_t r;
+	__m128 ml, mh;
+	
+	ml = _mm_load1_ps(&min_);
+	mh = _mm_load1_ps(&max_);
+	
+	_mm_store_ps_a(&r.x, _mm_min_ps(_mm_max_ps(_mm_load_ps_a(&v.x), ml), mh));
+	return r;
+}
+
 mathsimd_func(vec4_t,vec4_cross_sse)(vec4_t v1, vec4_t v2)
 {
 	__m128 mv1 = _mm_load_ps_a(&v1.x);
@@ -877,6 +889,7 @@ int mathutil_sse_implements()
 	vec4_div = vec4_div_sse;
 	vec4_min = vec4_min_sse;
 	vec4_max = vec4_max_sse;
+	vec4_clamp = vec4_clamp_sse;
 	vec4_mul_mat4_transpose = vec4_mul_mat4_transpose_sse;
 	vec4_lerp = vec4_lerp_sse;
 	vec4_slerp = vec4_slerp_sse;

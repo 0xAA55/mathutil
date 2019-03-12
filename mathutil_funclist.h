@@ -12,6 +12,7 @@ math_func(sr,real_t,r_atan, (real_t x), (x));
 math_func(sr,real_t,r_exp, (real_t x), (x));
 math_func(sr,real_t,r_log, (real_t x), (x));
 math_func(sr,real_t,r_pow, (real_t x, real_t y), (x, y));
+math_func(sr,real_t,r_mod, (real_t x, real_t y), (x, y));
 math_func(sr,real_t,r_max, (real_t a, real_t b), (a, b));
 math_func(sr,real_t,r_min, (real_t a, real_t b), (a, b));
 math_func(sr,real_t,r_atan2, (real_t y, real_t x), (y, x));

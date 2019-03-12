@@ -14,17 +14,17 @@ base_func(real_t,r_rnd)(uint32_t *p_seed)
 
 base_func(real_t,r_sin)(real_t x)
 {
-	return (real_t)sin((real_t)x);
+	return (real_t)sin(x);
 }
 
 base_func(real_t,r_cos)(real_t x)
 {
-	return (real_t)cos((real_t)x);
+	return (real_t)cos(x);
 }
 
 base_func(real_t,r_abs)(real_t x)
 {
-	return (real_t)fabs((real_t)x);
+	return (real_t)fabs(x);
 }
 
 base_func(real_t,r_sgn)(real_t x)
@@ -34,37 +34,37 @@ base_func(real_t,r_sgn)(real_t x)
 
 base_func(real_t,r_sqr)(real_t x)
 {
-	return (real_t)sqrt((real_t)x);
+	return (real_t)sqrt(x);
 }
 
 base_func(real_t,r_floor)(real_t x)
 {
-	return (real_t)floor((real_t)x);
+	return (real_t)floor(x);
 }
 
 base_func(real_t,r_ceil)(real_t x)
 {
-	return (real_t)ceil((real_t)x);
+	return (real_t)ceil(x);
 }
 
 base_func(real_t,r_atan)(real_t x)
 {
-	return (real_t)atan((real_t)x);
+	return (real_t)atan(x);
 }
 
 base_func(real_t,r_exp)(real_t x)
 {
-	return (real_t)exp((real_t)x);
+	return (real_t)exp(x);
 }
 
 base_func(real_t,r_log)(real_t x)
 {
-	return (real_t)log((real_t)x);
+	return (real_t)log(x);
 }
 
 base_func(real_t,r_pow)(real_t x, real_t y)
 {
-	return (real_t)pow((real_t)x, (real_t)y);
+	return (real_t)pow(x, y);
 }
 
 base_func(real_t,r_max)(real_t a, real_t b)
@@ -77,9 +77,14 @@ base_func(real_t,r_min)(real_t a, real_t b)
 	return a < b ? a : b;
 }
 
+base_func(real_t,r_mod)(real_t x, real_t y)
+{
+	return (real_t)fmod(x, y);
+}
+
 base_func(real_t,r_atan2)(real_t x, real_t y)
 {
-	return (real_t)atan2((real_t)x, (real_t)y);
+	return (real_t)atan2(x, y);
 }
 
 base_func(real_t,r_clamp)(real_t n, real_t min, real_t max)
@@ -96,7 +101,7 @@ base_func(real_t,r_lerp)(real_t a, real_t b, real_t s)
 
 base_func(real_t,r_hermite)(real_t s)
 {
-	return s * s * ((real_t)3 - (real_t)2 * s);
+	return s * s * (3 - 2 * s);
 }
 
 base_func(real_t,r_slerp)(real_t a, real_t b, real_t s)

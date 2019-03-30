@@ -893,7 +893,7 @@ int mathutil_sse_implements()
 	vec4_mul_mat4_transpose = vec4_mul_mat4_transpose_sse;
 	vec4_lerp = vec4_lerp_sse;
 	vec4_slerp = vec4_slerp_sse;
-	vec4_cross = vec4_cross_sse;
+	vec4_cross3 = vec4_cross3_sse;
 	vec4_rot_quat = vec4_rot_quat_sse;
 
 	vec4_normalize = vec4_normalize_sse;

@@ -11,7 +11,7 @@
 
 Currently, for MSVC compilers, *mathutil* only provides **SSE optimized functions** on x86-64 platform.
 
-But if *mathutil* is compiled by GCC, ***it will never try to detect CPUID*** because GCC is better on optimization than MSVC, and GCC doesn't allow using intrinsics which doesn't match the current architecture.
+But if *mathutil* is compiled by GCC, it will never try to detect CPUID because GCC is better on optimization than MSVC, and GCC doesn't allow using intrinsics which doesn't match the current architecture.
 
 ## Usage
 

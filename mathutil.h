@@ -34,13 +34,14 @@ typedef float real_t, *real_p;
 #  ifndef MATHUTIL_DETECT_SIMD
 #    define MATHUTIL_DETECT_SIMD 1
 #  endif
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #  define ALIGNED_(x) __attribute__ ((aligned(x)))
 #  ifndef MATHUTIL_DETECT_SIMD
 #    define MATHUTIL_DETECT_SIMD 0
 #  endif
 #else
 #  define ALIGNED_(x)
+#  define MATHUTIL_DETECT_SIMD 1
 #endif
 #define MATHUTIL_NOT_ALIGNED 1
 #define MATHUTIL_ASSUME_ALIGNED 0

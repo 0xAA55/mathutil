@@ -22,6 +22,11 @@ base_func(real_t,r_cos)(real_t x)
 	return (real_t)cos(x);
 }
 
+base_func(real_t,r_tan)(real_t x)
+{
+	return (real_t)tan(x);
+}
+
 base_func(real_t,r_abs)(real_t x)
 {
 	return (real_t)fabs(x);
@@ -29,7 +34,7 @@ base_func(real_t,r_abs)(real_t x)
 
 base_func(real_t,r_sgn)(real_t x)
 {
-	return x >= 0 ? r_1 : -r_1;
+	return x != 0 ? (x > 0 ? r_1 : -r_1) : 0;
 }
 
 base_func(real_t,r_sqr)(real_t x)
@@ -253,7 +258,7 @@ base_func(vec4_t,vec4_max)(vec4_t v1, vec4_t v2)
 	);
 }
 
-base_func(vec4_t,vec4_cross)(vec4_t v1, vec4_t v2)
+base_func(vec4_t,vec4_cross3)(vec4_t v1, vec4_t v2)
 {
 	return vec4
 	(

@@ -9,7 +9,7 @@
 #else
 #define _compiler_barrier
 #endif
-#elif defined(__GNUC__) || defined(clang)
+#elif defined(__GNUC__) || defined(__clang__)
 #define _compiler_barrier asm volatile("" ::: "memory")
 #else
 #define _compiler_barrier (void)1

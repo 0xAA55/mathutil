@@ -1,13 +1,18 @@
 # mathutil
-A utility for 3D graphic programming. You can use 4-d vectors, quaternions, 4x4 matrices, planes, etc.
+## Introduction
+### What is mathutil?
+*mathutil* is a cross-platform library for **3D game developing** written in ***C***. It providing functions for **3D、4D vector, plane, quarternion, and 4x4 matrix** related calculations, and some basic math functions like **sin**, **cos**, etc.
 
-mathutil_ref.c is the source file that defines all of the math functions as the reference.
+### Why use mathutil?
+*mathutil* is a replacement for something like *d3dx9.h*, but it also provides **source code**. If you want to make your project **portable**, then don't use d3dx9. Use *mathutil* instead.
 
-The point of this project is: it can detect the instruction set of the CPU, and use SIMD instructions to accelerate some of the functions.
+### Optimization
+*mathutil* uses SIMD instructions for optimization if available. If *mathutil* is compiled by MSVC, it detects **CPUID** and replaces functions with one that uses SIMD instructions and compatible with the current CPU.
 
-The CPU detection and function pointer replacement is default turned on for MSVC compilers and off for GCC, because I cannot use the AVX intrinsics without using -mavx option in GCC, and if I use it, GCC will optimize all of the ref implements to use AVX instructions, which destroys the dynamic code selection concept of this library that wants to be compatible with variant CPUs, but it optimizes better than MSVC. But this also allow GCC to optimize the code more complete, as we can produce different binaries for each architecture of the CPUs, and use another way to choose them.
+Currently, for MSVC compilers, *mathutil* only provides **SSE optimized functions** on x86-64 platform.
 
-The acceleration design is based on x86 system, if you want to use it on ARM, the SIMD instruction acceleration is unavailable.
+But if *mathutil* is compiled by GCC, ***it will never try to detect CPUID*** because GCC is better on optimization than MSVC, and GCC doesn't allow using intrinsics which doesn't match the current architecture.
 
-Tested on Windows 7, compiled with MinGW-w64, no error or warning reported.
+## Usage
 
+See [**manual**](doc/mathutil_reference_manual.md) more informations.

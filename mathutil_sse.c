@@ -449,7 +449,7 @@ mathsimd_func(vec4_t,vec4_clamp_sse)(vec4_t v, real_t min_, real_t max_)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_cross_sse)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_cross3_sse)(vec4_t v1, vec4_t v2)
 {
 	__m128 mv1 = _mm_load_ps_a(&v1.x);
 	__m128 mv2 = _mm_load_ps_a(&v2.x);

@@ -32,7 +32,7 @@ typedef struct vec4_struct
 ```
 ### Quaternion
 ```
-typedef vec4_t quat_t, quat_p;
+typedef vec4_t quat_t, *quat_p;
 ```
 ### Matrix
 ```

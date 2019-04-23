@@ -5,14 +5,26 @@ RANLIB = $(GCC_PREFIX)gcc-ranlib
 OPTIMIZATIONS=-g -O3 -fdata-sections -ffunction-sections -fmerge-all-constants -flto -fuse-linker-plugin -ffat-lto-objects
 CFLAGS=-Wall $(OPTIMIZATIONS) -mavx -I..
 
-includes = $(wildcard *.h)
+OBJS=cpudetect.o
+OBJS+=mathutil.o
+OBJS+=mathutil_ref.o
+OBJS+=mathutil_sse.o
+OBJS+=mathutil_sse2.o
+OBJS+=mathutil_sse3.o
+OBJS+=mathutil_ssse3.o
+OBJS+=mathutil_sse41.o
 
-%.o: %.c ${includes}
-	$(CC) -c $(CFLAGS) -o $@ $<
+all: libmathutil.a
+
+-include $(OBJS:.o=.d)
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $*.c -o $*.o
+	$(CC) -MM $(CFLAGS) $*.c > $*.d
 	
-libmathutil.a: cpudetect.o mathutil.o mathutil_ref.o mathutil_sse.o mathutil_sse2.o mathutil_sse3.o mathutil_ssse3.o mathutil_sse41.o
+libmathutil.a: $(OBJS)
 	$(AR) rcu $@ $+
 	$(RANLIB) $@
 
 clean:
-	del *.o *.a
+	del *.o *.a *.d

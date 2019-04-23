@@ -1,5 +1,6 @@
 *.a
 *.o
+*.d
 *.bat
 *.exe
 *.txt

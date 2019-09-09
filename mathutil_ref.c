@@ -116,7 +116,11 @@ base_func(real_t,r_slerp)(real_t a, real_t b, real_t s)
 
 base_func(vec4_t,vec4)(real_t x, real_t y, real_t z, real_t w)
 {
-	vec4_t v = {x, y, z, w};
+	vec4_t v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	v.w = w;
 	return v;
 }
 
@@ -332,7 +336,11 @@ base_func(vec4_t,vec4_rot_quat)(vec4_t v, quat_t q)
 
 base_func(quat_t,quat)(real_t x, real_t y, real_t z, real_t w)
 {
-	quat_t r = {x, y, z, w};
+	quat_t r;
+	r.x = x;
+	r.y = y;
+	r.z = z;
+	r.w = w;
 	return r;
 }
 

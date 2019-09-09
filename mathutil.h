@@ -31,8 +31,10 @@ typedef float real_t, *real_p;
 
 #if defined(_MSC_VER)
 #  define ALIGNED_(x) __declspec(align(x))
-#  ifndef MATHUTIL_DETECT_SIMD
-#    define MATHUTIL_DETECT_SIMD 1
+#  if _MSC_VER < 1910 || defined(_DEBUG)
+#    ifndef MATHUTIL_DETECT_SIMD
+#      define MATHUTIL_DETECT_SIMD 1
+#    endif
 #  endif
 #elif defined(__GNUC__) || defined(__clang__)
 #  define ALIGNED_(x) __attribute__ ((aligned(x)))

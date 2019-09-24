@@ -2,9 +2,15 @@
 #include<stdlib.h>
 
 #if MATHUTIL_DETECT_CPU
-#define base_func(r,n) r n ## _ref
+#  define base_func(r,n) r n ## _ref
 #else
-#define base_func(r,n) r n
+#if MATHUTIL_REFONLY
+#  define base_func(r,n) r n
+#else
+#  define base_func(r,n) r n ## _ref
+#  define math_func(r,n,arg) math_extern r n arg
+#  include "mathutil_funclist.h"
+#endif
 #endif
 
 base_func(real_t,r_rnd)(uint32_t *p_seed)
@@ -121,6 +127,11 @@ base_func(vec4_t,vec4)(real_t x, real_t y, real_t z, real_t w)
 	v.y = y;
 	v.z = z;
 	v.w = w;
+	return v;
+}
+
+base_func(vec4_t, vec4_flushcomp)(vec4_t v)
+{
 	return v;
 }
 
@@ -344,6 +355,11 @@ base_func(quat_t,quat)(real_t x, real_t y, real_t z, real_t w)
 	return r;
 }
 
+base_func(quat_t, quat_flushcomp)(quat_t q)
+{
+	return q;
+}
+
 base_func(quat_t,quat_rot_axis)(vec4_t axis, real_t angle)
 {
 	real_t ha = angle / 2;
@@ -381,6 +397,11 @@ base_func(mat4_t,mat4)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
 	r.z = z;
 	r.w = w;
 	return r;
+}
+
+base_func(mat4_t, mat4_flushcomp)(mat4_t m)
+{
+	return m;
 }
 
 base_func(mat4_t,mat4_rot_x)(real_t angle)

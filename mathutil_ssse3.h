@@ -4,7 +4,7 @@
 #include"mathutil_conf.h"
 #include"mathutil.h"
 
-#define math_func(r_hint,r,n,arg,carg) r n ## _ssse3 arg
+#define math_func(r,n,arg) r n ## _ssse3 arg
 
 #include"mathutil_funclist.h"
 

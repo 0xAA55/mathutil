@@ -9,7 +9,7 @@
 #if MATHUTIL_DETECT_CPU
 void mathutil_ref_implements()
 {
-#	define math_func(r_hint,r,n,arg,carg) n = n ## _ref
+#	define math_func(r,n,arg) n = n ## _ref
 #	include"mathutil_funclist.h"
 #	undef math_func
 }
@@ -30,7 +30,7 @@ static void mathutil_init()
 	g_mathutil_initialized = 1;
 }
 
-#	define math_func(r_hint,r,n,arg,carg) r n ## _first arg{mathutil_init(); return n carg;} r(*n)arg = n ## _first
+#	define math_func(r,n,arg) r n ## _first arg{mathutil_init(); return n carg;} r(*n)arg = n ## _first
 #	include"mathutil_funclist.h"
 #	undef math_func
 

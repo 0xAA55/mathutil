@@ -5,7 +5,7 @@
 #include"mathutil.h"
 
 #if MATHUTIL_DETECT_CPU
-#define math_func(r_hint,r,n,arg,carg) r n ## _ref arg
+#define math_func(r,n,arg) r n ## _ref arg
 
 #include"mathutil_funclist.h"
 

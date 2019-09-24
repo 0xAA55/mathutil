@@ -1,5 +1,7 @@
 #include"cpudetect.h"
 
+#if MATHUTIL_DETECT_CPU
+
 //  Misc.
 static int HW_MMX = 0;
 static int HW_x64 = 0;
@@ -248,5 +250,4 @@ static void cpudetect_init()
 	g_cpudetect_initialized = 1;
 }
 
-
-
+#endif // !MATHUTIL_DETECT_CPU

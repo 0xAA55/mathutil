@@ -1,5 +1,9 @@
 #ifndef _CPUDETECT_H_
-#define _CPUDETECT_H_
+#define _CPUDETECT_H_ 1
+
+#include"mathutil_conf.h"
+
+#if MATHUTIL_DETECT_CPU
 
 int CPUID_MMX();
 int CPUID_x64();
@@ -39,5 +43,7 @@ int CPUID_AVX512VBMI();
 int OS_x64();
 int OS_AVX();
 int OS_AVX512();
+
+#endif // !MATHUTIL_DETECT_CPU
 
 #endif // !_CPUDETECT_H_

@@ -3,16 +3,21 @@
 #include<xmmintrin.h>
 #include<immintrin.h>
 
-#if _MSC_VER
-#if !__INTELLISENSE__
-#define _compiler_barrier _ReadWriteBarrier()
-#else
-#define _compiler_barrier
-#endif
+#if defined(_MSC_VER)
+#  if !__INTELLISENSE__
+#    define _compiler_barrier _ReadWriteBarrier()
+#  else
+#    define _compiler_barrier
+#  endif
 #elif defined(__GNUC__) || defined(__clang__)
-#define _compiler_barrier asm volatile("" ::: "memory")
+#  define _compiler_barrier asm volatile("" ::: "memory")
 #else
-#define _compiler_barrier (void)1
+#  define _compiler_barrier (void)1
+#endif
+
+#ifndef _MSC_VER
+#  define _mm_castps_si128(a) (__m128i)(a)
+#  define _mm_castsi128_ps(a) (__m128)(a)
 #endif
 
 #if MATHUTIL_VAR_NOT_ALIGNED && !MATHUTIL_VAR_ASSUME_ALIGNED
@@ -32,7 +37,7 @@ static __m128 vec4_load(vec4_t v)
 #if VEC4_WITH_M128_XYZW
 	return v.m_xyzw;
 #else
-	return vec4_load(v);
+	return _mm_load_ps_a(&v.x);
 #endif
 }
 
@@ -41,7 +46,7 @@ static void vec4_set_result(vec4_p v, __m128 m)
 #if VEC4_WITH_M128_XYZW
 	v->m_xyzw = m;
 #else
-	_mm_store_ps_a(&v.x, m);
+	_mm_store_ps_a(&v->x, m);
 #endif
 }
 
@@ -74,7 +79,7 @@ mathsimd_func(real_t,r_sin_sse)(real_t x)
 	__m128 mr;
 	real_t r;
 
-	x = ((float)floor(x / (r_pi * 2) + 0.5f) - 0.5f) * (r_pi * 2) - x;
+	x = ((float)floor(x / (r_pi * 2.0f) + 0.5f) - 0.5f) * (r_pi * 2) - x;
 	if(x > r_pi * 0.5f) x = x >= 0 ? r_pi - x : -r_pi - x;
 
 	mxxxx = _mm_load1_ps(&x);
@@ -335,17 +340,15 @@ mathsimd_func(real_t,r_pow_sse)(real_t x, real_t y)
 
 mathsimd_func(vec4_t, vec4_sse)(real_t x, real_t y, real_t z, real_t w)
 {
-#if VEC4_WITH_M128_XYZW
 	vec4_t v;
 	v.x = x;
 	v.y = y;
 	v.z = z;
 	v.w = w;
+#if VEC4_WITH_M128_XYZW
 	v.m_xyzw = _mm_set_ps(x, y, z, w);
-	return v;
-#else
-	return vec4(x, y, z, w);
 #endif
+	return v;
 }
 
 mathsimd_func(vec4_t, vec4_flushcomp_sse)(vec4_t v)
@@ -605,17 +608,15 @@ mathsimd_func(vec4_t,vec4_slerp_sse)(vec4_t v1, vec4_t v2, real_t s)
 }
 mathsimd_func(quat_t, quat_sse)(real_t x, real_t y, real_t z, real_t w)
 {
-#if VEC4_WITH_M128_XYZW
 	quat_t q;
 	q.x = x;
 	q.y = y;
 	q.z = z;
 	q.w = w;
+#if VEC4_WITH_M128_XYZW
 	q.m_xyzw = _mm_set_ps(x, y, z, w);
-	return q;
-#else
-	return quat(x, y, z, w);
 #endif
+	return q;
 }
 
 mathsimd_func(quat_t, quat_flushcomp_sse)(quat_t q)
@@ -719,20 +720,77 @@ mathsimd_func(mat4_t, mat4_rot_z_sse) (real_t angle)
 
 mathsimd_func(mat4_t, mat4_rot_axis_sse)(vec4_t axis, real_t angle)
 {
+	// Cxx+c  Cxy+sz Cxz-sy 0
+	// Cxy-sz Cyy+c  Cyz+sx 0
+	// Cxz+sy Cyz-sx Czz+c  0
+	// 0      0      0      1
+
 	real_t sa = r_sin_sse(angle);
 	real_t ca = r_cos_sse(angle);
 	vec4_t v = vec4_normalize_sse(axis);
-	return mat4_sse //TODO: Optimization
+	real_t C = 1 - ca;
+	__m128 mC = _mm_load_ss(&C);
+	__m128 ms = _mm_load_ss(&sa);
+	__m128 mc = _mm_load_ss(&ca);
+	__m128 mv = vec4_load(v);
+	__m128 mxxx = _mm_shuffle_ps(mv, mv, _MM_SHUFFLE(3,0,0,0));
+	__m128 myyy = _mm_shuffle_ps(mv, mv, _MM_SHUFFLE(3,1,1,1));
+	__m128 mzzz = _mm_shuffle_ps(mv, mv, _MM_SHUFFLE(3,2,2,2));
+	__m128 mCxyz, msxyzc, msxyzm;
+	__m128 mrx, mry, mrz, mrw;
+	mat4_t m;
+	
+	mC = _mm_shuffle_ps(mC, mC, _MM_SHUFFLE(3,0,0,0));
+	mCxyz = _mm_mul_ps(mC, mv);
+	msxyzc = _mm_mul_ps(_mm_shuffle_ps(ms, ms, _MM_SHUFFLE(3,0,0,0)), mv);
+	msxyzc = _mm_add_ps(msxyzc, _mm_shuffle_ps(mc, mc, _MM_SHUFFLE(0,3,3,3)));
+	msxyzm = _mm_mul_ps(msxyzc, _mm_set_ps(-1,-1,-1,1));
+	mrx = _mm_add_ps(_mm_mul_ps(mCxyz, mxxx), _mm_shuffle_ps(msxyzc, msxyzm, _MM_SHUFFLE(3,1,2,3)));
+	mry = _mm_add_ps(_mm_mul_ps(mCxyz, myyy), _mm_shuffle_ps(msxyzm, msxyzc, _MM_SHUFFLE(3,0,3,2)));
+	mrz = _mm_add_ps(_mm_mul_ps(mCxyz, mzzz), _mm_mul_ps(_mm_shuffle_ps(msxyzc, msxyzc, _MM_SHUFFLE(3,3,0,1)), _mm_set_ps(1,-1,1,0)));
+	mrw = _mm_set_ps(0, 0, 0, 1);
+
+	vec4_set_result(&m.x, mrx);
+	vec4_set_result(&m.y, mry);
+	vec4_set_result(&m.z, mrz);
+	vec4_set_result(&m.w, mrw);
+
+	return m;
+
+	/*
+	return mat4_sse
 	(
 		vec4_sse((1 - ca) * v.x * v.x + ca, (1 - ca) * v.y * v.x + sa * v.z, (1 - ca) * v.z * v.x - sa * v.y, 0),
 		vec4_sse((1 - ca) * v.x * v.y - sa * v.z, (1 - ca) * v.y * v.y + ca, (1 - ca) * v.z * v.y + sa * v.x, 0),
 		vec4_sse((1 - ca) * v.x * v.z + sa * v.y, (1 - ca) * v.y * v.z - sa * v.x, (1 - ca) * v.z * v.z + ca, 0),
 		vec4_sse(0, 0, 0, 1)
 	);
+	*/
 }
 
 mathsimd_func(mat4_t, mat4_rot_euler_sse)(real_t yaw, real_t pitch, real_t roll)
 {
+	real_t
+		sr = r_sin_sse(yaw),
+		cr = r_cos_sse(yaw),
+		sp = r_sin_sse(pitch),
+		cp = r_cos_sse(pitch),
+		sy = r_sin_sse(roll),
+		cy = r_cos_sse(roll);
+
+	real_t
+		srcp = sr * cp,
+		srsp = sr * sp,
+		crcp = cr * cp,
+		crsp = cr * sp;
+
+	return mat4_sse //TODO: Optimization
+	(
+		vec4_sse(cr * cy + srsp * sy, srcp, -sy * cr + srsp * cy, 0),
+		vec4_sse(-sr * cy + crsp * sy, crcp, sy * sr + crsp * cy, 0),
+		vec4_sse(sy * cp, -sp, cp * cy, 0),
+		vec4_sse(0, 0, 0, 1)
+	);
 }
 
 mathsimd_func(mat4_t,mat4_from_quat_sse)(quat_t q)

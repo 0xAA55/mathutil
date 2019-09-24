@@ -1,7 +1,7 @@
 #include"mathutil_ref.h"
 #include<stdlib.h>
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 #define base_func(r,n) r n ## _ref
 #else
 #define base_func(r,n) r n

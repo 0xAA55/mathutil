@@ -12,14 +12,14 @@
 #define _compiler_barrier asm volatile("" ::: "memory")
 #endif
 
-#if MATHUTIL_NOT_ALIGNED && !MATHUTIL_ASSUME_ALIGNED
+#if MATHUTIL_VAR_NOT_ALIGNED && !MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_loadu_ps
 #define _mm_load_pd_a _mm_loadu_pd
 #define _mm_store_ps_a _mm_storeu_ps
 #define _mm_store_pd_a _mm_storeu_pd
 #define _mm_load_si128_a _mm_lddqu_si128
 #define _mm_store_si128_a _mm_storeu_si128
-#else // !MATHUTIL_NOT_ALIGNED || MATHUTIL_ASSUME_ALIGNED
+#else // !MATHUTIL_VAR_NOT_ALIGNED || MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_load_ps
 #define _mm_load_pd_a _mm_load_pd
 #define _mm_store_ps_a _mm_store_ps
@@ -33,7 +33,7 @@
 #if !MATHUTIL_USE_DOUBLE
 
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 int mathutil_ssse3_implements()
 {
 	if(!CPUID_SSSE3()) return 0;
@@ -42,11 +42,11 @@ int mathutil_ssse3_implements()
 
 	return 1;
 }
-#endif // MATHUTIL_DETECT_SIMD
+#endif // MATHUTIL_DETECT_CPU
 
 #else // MATHUTIL_USE_DOUBLE
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 int mathutil_ssse3_implements()
 {
 	if(!CPUID_SSSE3()) return 0;
@@ -55,6 +55,6 @@ int mathutil_ssse3_implements()
 
 	return 1;
 }
-#endif // MATHUTIL_DETECT_SIMD
+#endif // MATHUTIL_DETECT_CPU
 
 #endif // !MATHUTIL_USE_DOUBLE

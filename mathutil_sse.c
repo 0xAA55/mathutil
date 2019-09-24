@@ -15,12 +15,12 @@
 #define _compiler_barrier (void)1
 #endif
 
-#if MATHUTIL_NOT_ALIGNED && !MATHUTIL_ASSUME_ALIGNED
+#if MATHUTIL_VAR_NOT_ALIGNED && !MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_loadu_ps
 #define _mm_load_pd_a _mm_loadu_pd
 #define _mm_store_ps_a _mm_storeu_ps
 #define _mm_store_pd_a _mm_storeu_pd
-#else // !MATHUTIL_NOT_ALIGNED || MATHUTIL_ASSUME_ALIGNED
+#else // !MATHUTIL_VAR_NOT_ALIGNED || MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_load_ps
 #define _mm_load_pd_a _mm_load_pd
 #define _mm_store_ps_a _mm_store_ps
@@ -866,7 +866,7 @@ mathsimd_func(mat4_t,mat4_mul_transpose_sse)(mat4_t l, mat4_t r)
 	return o;
 }
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 int mathutil_sse_implements()
 {
 	if(!CPUID_SSE()) return 0;
@@ -915,11 +915,11 @@ int mathutil_sse_implements()
 	mat4_mul_transpose = mat4_mul_transpose_sse;
 	return 1;
 }
-#endif // MATHUTIL_DETECT_SIMD
+#endif // MATHUTIL_DETECT_CPU
 
 #else // MATHUTIL_USE_DOUBLE
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 int mathutil_sse_implements()
 {
 	if(!CPUID_SSE()) return 0;
@@ -928,6 +928,6 @@ int mathutil_sse_implements()
 
 	return 1;
 }
-#endif // MATHUTIL_DETECT_SIMD
+#endif // MATHUTIL_DETECT_CPU
 
 #endif // MATHUTIL_USE_DOUBLE

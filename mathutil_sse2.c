@@ -12,14 +12,14 @@
 #define _compiler_barrier asm volatile("" ::: "memory")
 #endif
 
-#if MATHUTIL_NOT_ALIGNED && !MATHUTIL_ASSUME_ALIGNED
+#if MATHUTIL_VAR_NOT_ALIGNED && !MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_loadu_ps
 #define _mm_load_pd_a _mm_loadu_pd
 #define _mm_store_ps_a _mm_storeu_ps
 #define _mm_store_pd_a _mm_storeu_pd
 #define _mm_load_si128_a _mm_loadu_si128
 #define _mm_store_si128_a _mm_storeu_si128
-#else // !MATHUTIL_NOT_ALIGNED || MATHUTIL_ASSUME_ALIGNED
+#else // !MATHUTIL_VAR_NOT_ALIGNED || MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_load_ps
 #define _mm_load_pd_a _mm_load_pd
 #define _mm_store_ps_a _mm_store_ps
@@ -53,7 +53,7 @@ mathsimd_func(vec4_t,vec4_invert_sse2)(vec4_t v)
 	return r;
 }
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 int mathutil_sse2_implements()
 {
 	if(!CPUID_SSE2()) return 0;
@@ -66,7 +66,7 @@ int mathutil_sse2_implements()
 
 	return 1;
 }
-#endif // MATHUTIL_DETECT_SIMD
+#endif // MATHUTIL_DETECT_CPU
 
 #else // MATHUTIL_USE_DOUBLE
 
@@ -669,7 +669,7 @@ mathsimd_func(mat4_t,mat4_mul_transpose_sse2)(mat4_t l, mat4_t r)
 	return o;
 }
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 int mathutil_sse2_implements()
 {
 	if(!CPUID_SSE2()) return 0;
@@ -709,6 +709,6 @@ int mathutil_sse2_implements()
 	mat4_mul_transpose = mat4_mul_transpose_sse2;
 	return 1;
 }
-#endif // MATHUTIL_DETECT_SIMD
+#endif // MATHUTIL_DETECT_CPU
 
 #endif // !MATHUTIL_USE_DOUBLE

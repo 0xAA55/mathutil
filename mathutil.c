@@ -6,7 +6,7 @@
 #include"mathutil_ssse3.h"
 #include"mathutil_sse41.h"
 
-#if MATHUTIL_DETECT_SIMD
+#if MATHUTIL_DETECT_CPU
 void mathutil_ref_implements()
 {
 #	define math_func(r_hint,r,n,arg,carg) n = n ## _ref

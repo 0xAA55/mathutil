@@ -29,26 +29,6 @@ typedef float real_t, *real_p;
 
 #endif // !MATHUTIL_USE_DOUBLE
 
-#if defined(_MSC_VER)
-#  define ALIGNED_(x) __declspec(align(x))
-#  if _MSC_VER < 1910 || defined(_DEBUG)
-#    ifndef MATHUTIL_DETECT_SIMD
-#      define MATHUTIL_DETECT_SIMD 1
-#    endif
-#  endif
-#elif defined(__GNUC__) || defined(__clang__)
-#  define ALIGNED_(x) __attribute__ ((aligned(x)))
-#  ifndef MATHUTIL_DETECT_SIMD
-#    define MATHUTIL_DETECT_SIMD 0
-#  endif
-#else
-#  define ALIGNED_(x)
-#  define MATHUTIL_DETECT_SIMD 1
-#endif
-#define MATHUTIL_NOT_ALIGNED 1
-#define MATHUTIL_ASSUME_ALIGNED 0
-#define MATHUTIL_ALLOW_TESTED_SLOW_IMPLEMENTS 1
-
 typedef struct vec4_struct
 {
 	real_t x, y, z, w;
@@ -70,15 +50,5 @@ typedef struct mat4_struct
 #else
 #define math_extern extern
 #endif
-
-#if MATHUTIL_DETECT_SIMD
-#define math_func(r_hint,r,n,arg,carg) math_extern r(*n) arg
-#else // !MATHUTIL_DETECT_SIMD
-#define math_func(r_hint,r,n,arg,carg) r n arg
-#endif
-
-#include"mathutil_funclist.h"
-
-#undef math_func
 
 #endif // !_MATHUTIL_H_

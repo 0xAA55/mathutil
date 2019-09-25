@@ -778,6 +778,54 @@ mathsimd_func(mat4_t, mat4_rot_euler_sse)(real_t yaw, real_t pitch, real_t roll)
 		sy = r_sin_sse(roll),
 		cy = r_cos_sse(roll);
 
+	__m128 msrcrspcp = _mm_set_ps(sr, cr, sp, cp);
+	__m128 msycysycy = _mm_set_ps(sy, cy, sy, cy);
+	__m128 msrcp_srsp_crcp_crsp = _mm_mul_ps(
+		_mm_shuffle_ps(msrcrspcp, msrcrspcp, _MM_SHUFFLE(1,1,0,0)),
+		_mm_shuffle_ps(msrcrspcp, msrcrspcp, _MM_SHUFFLE(2,3,2,3)));
+
+	//  crcy 0 -sycr 0
+	__m128 alayerx = _mm_mul_ps(_mm_set_ps(1,0,-1,0), _mm_mul_ps(
+		_mm_shuffle_ps(msrcrspcp, msrcrspcp, _MM_SHUFFLE(1,1,1,1)),
+		_mm_shuffle_ps(msycysycy, msycysycy, _MM_SHUFFLE(0,1,0,1))));
+
+	// -srcy 0  sysr 0
+	__m128 alayery = _mm_mul_ps(_mm_set_ps(-1,1,0,0), _mm_mul_ps(
+		_mm_shuffle_ps(msrcrspcp, msrcrspcp, _MM_SHUFFLE(0,0,0,0)),
+		_mm_shuffle_ps(msycysycy, msycysycy, _MM_SHUFFLE(0,0,1,1))));
+
+	//  sycp 0 cpcy 0
+	__m128 alayerz = _mm_mul_ps(_mm_set_ps(1,0,1,0), _mm_mul_ps(
+		_mm_shuffle_ps(msrcrspcp, msrcrspcp, _MM_SHUFFLE(2,3,2,3)),
+		_mm_shuffle_ps(msycysycy, msycysycy, _MM_SHUFFLE(0,0,1,1))));
+
+	__m128 sy_1_cy_0 = _mm_set_ps(sy, 1, cy, 0);
+	__m128 z_msp_z_z = _mm_set_ps(0, -sp, 0, 0);
+
+	__m128 resultx = _mm_add_ps(alayerx, _mm_mul_ps(_mm_shuffle_ps(msrcp_srsp_crcp_crsp, msrcp_srsp_crcp_crsp, _MM_SHUFFLE(3, 1, 0, 1)), sy_1_cy_0));
+	__m128 resulty = _mm_add_ps(alayery, _mm_mul_ps(_mm_shuffle_ps(msrcp_srsp_crcp_crsp, msrcp_srsp_crcp_crsp, _MM_SHUFFLE(3, 3, 2, 3)), sy_1_cy_0));
+	__m128 resultz = _mm_add_ps(alayerz, z_msp_z_z);
+	__m128 resultw = _mm_set_ps(0, 0, 0, 1);
+
+	mat4_t m;
+
+	vec4_set_result(&m.x, resultx);
+	vec4_set_result(&m.y, resulty);
+	vec4_set_result(&m.z, resultz);
+	vec4_set_result(&m.w, resultw);
+
+	return m;
+
+
+	/*
+	real_t
+		sr = r_sin_sse(yaw),
+		cr = r_cos_sse(yaw),
+		sp = r_sin_sse(pitch),
+		cp = r_cos_sse(pitch),
+		sy = r_sin_sse(roll),
+		cy = r_cos_sse(roll);
+
 	real_t
 		srcp = sr * cp,
 		srsp = sr * sp,
@@ -786,11 +834,12 @@ mathsimd_func(mat4_t, mat4_rot_euler_sse)(real_t yaw, real_t pitch, real_t roll)
 
 	return mat4_sse //TODO: Optimization
 	(
-		vec4_sse(cr * cy + srsp * sy, srcp, -sy * cr + srsp * cy, 0),
-		vec4_sse(-sr * cy + crsp * sy, crcp, sy * sr + crsp * cy, 0),
-		vec4_sse(sy * cp, -sp, cp * cy, 0),
+		vec4_sse( cr * cy + srsp * sy,  srcp,  -sy * cr + srsp * cy, 0),
+		vec4_sse(-sr * cy + crsp * sy,  crcp,   sy * sr + crsp * cy, 0),
+		vec4_sse( sy * cp,               -sp,   cp * cy,             0),
 		vec4_sse(0, 0, 0, 1)
 	);
+	*/
 }
 
 mathsimd_func(mat4_t,mat4_from_quat_sse)(quat_t q)

@@ -90,7 +90,7 @@ typedef struct vec4_struct
 #define VEC4_DEFINED 1
 #endif // !defined(VEC4_DEFINED)
 
-typedef vec4_t quat_t, quat_p;
+typedef vec4_t quat_t, *quat_p;
 
 typedef struct mat4_struct
 {

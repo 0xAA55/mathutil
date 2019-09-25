@@ -1,4 +1,5 @@
 #include"mathutil_sse.h"
+#include"mathutil_ref.h"
 #include"cpudetect.h"
 #include<xmmintrin.h>
 #include<immintrin.h>
@@ -54,6 +55,11 @@ static void vec4_set_result(vec4_p v, __m128 m)
 
 #if !MATHUTIL_USE_DOUBLE
 
+mathsimd_func(real_t, r_rnd)(uint32_t *p_seed)
+{
+	return r_rnd_ref(p_seed);
+}
+
 mathsimd_func(real_t,r_sin)(real_t x)
 {
 	__m128 mfac3_5_7_9 = _mm_set_ps(
@@ -79,7 +85,7 @@ mathsimd_func(real_t,r_sin)(real_t x)
 	__m128 mr;
 	real_t r;
 
-	x = ((float)floor(x / (r_pi * 2.0f) + 0.5f) - 0.5f) * (r_pi * 2) - x;
+	x = (r_floor_sse(x / (r_pi * 2.0f) + 0.5f) - 0.5f) * (r_pi * 2) - x;
 	if(x > r_pi * 0.5f) x = x >= 0 ? r_pi - x : -r_pi - x;
 
 	mxxxx = _mm_load1_ps(&x);
@@ -162,6 +168,46 @@ mathsimd_func(real_t,r_cos)(real_t x)
 	return r;
 }
 
+mathsimd_func(real_t, r_tan)(real_t x)
+{
+	return r_tan_ref(x);
+}
+
+mathsimd_func(real_t, r_abs)(real_t x)
+{
+	return r_abs_ref(x);
+}
+
+mathsimd_func(real_t, r_sgn)(real_t x)
+{
+	return r_sgn_ref(x);
+}
+
+mathsimd_func(real_t, r_sqr)(real_t x)
+{
+	return r_sqr_ref(x);
+}
+
+mathsimd_func(real_t, r_floor)(real_t x)
+{
+	return r_floor_ref(x);
+}
+
+mathsimd_func(real_t, r_ceil)(real_t x)
+{
+	return r_ceil_ref(x);
+}
+
+mathsimd_func(real_t, r_atan)(real_t x)
+{
+	return r_atan_ref(x);
+}
+
+mathsimd_func(real_t, r_exp)(real_t x)
+{
+	return r_exp_ref(x);
+}
+
 mathsimd_func(real_t,r_log)(real_t x)
 {
 	__m128 mpowpart;
@@ -222,7 +268,47 @@ mathsimd_func(real_t,r_log)(real_t x)
 
 mathsimd_func(real_t,r_pow)(real_t x, real_t y)
 {
-	return r_exp(y * r_log_sse(x));
+	return r_exp_sse(y * r_log_sse(x));
+}
+
+mathsimd_func(real_t, r_mod)(real_t x, real_t y)
+{
+	return r_mod_ref(x, y);
+}
+
+mathsimd_func(real_t, r_max)(real_t x, real_t y)
+{
+	return r_max_ref(x, y);
+}
+
+mathsimd_func(real_t, r_min)(real_t x, real_t y)
+{
+	return r_min_ref(x, y);
+}
+
+mathsimd_func(real_t, r_atan2)(real_t y, real_t x)
+{
+	return r_atan2_ref(y, x);
+}
+
+mathsimd_func(real_t, r_clamp)(real_t n, real_t min_, real_t max_)
+{
+	return r_clamp_ref(n, min_, max_);
+}
+
+mathsimd_func(real_t, r_lerp)(real_t a, real_t b, real_t s)
+{
+	return r_lerp_ref(a, b, s);
+}
+
+mathsimd_func(real_t, r_hermite)(real_t s)
+{
+	return r_hermite_ref(s);
+}
+
+mathsimd_func(real_t, r_slerp)(real_t a, real_t b, real_t s)
+{
+	return r_slerp_ref(a, b, s);
 }
 
 mathsimd_func(vec4_t, vec4)(real_t x, real_t y, real_t z, real_t w)
@@ -506,11 +592,44 @@ mathsimd_func(quat_t, quat)(real_t x, real_t y, real_t z, real_t w)
 	return q;
 }
 
+static __m128 quat_load(quat_t q)
+{
+#if VEC4_WITH_M128_XYZW
+	return q.m_xyzw;
+#else
+	return _mm_load_ps_a(&q.x);
+#endif
+}
+
+static void quat_set_result(quat_p q, __m128 m)
+{
+#if VEC4_WITH_M128_XYZW
+	q->m_xyzw = m;
+#else
+	_mm_store_ps_a(&q->x, m);
+#endif
+}
+
 mathsimd_func(quat_t, quat_flushcomp)(quat_t q)
 {
 #if VEC4_WITH_M128_XYZW
 	_mm_store_ps_a(&q.x, q.m_xyzw);
 #endif
+	return q;
+}
+
+mathsimd_func(quat_t, quat_rot_axis)(vec4_t axis, real_t angle)
+{
+	real_t ha = angle / 2;
+	real_t sin_ha = r_sin_sse(ha);
+	real_t cos_ha = r_cos_sse(ha);
+	__m128 mq = vec4_load(axis);
+	quat_t q;
+
+	mq = _mm_mul_ps(_mm_mul_ps(mq, _mm_set_ps(1, 1, 1, 0)), _mm_load1_ps(&sin_ha));
+	mq = _mm_add_ps(_mm_mul_ps(_mm_set_ps(0, 0, 0, 1), _mm_load1_ps(&cos_ha)), mq);
+	
+	quat_set_result(&q, mq);
 	return q;
 }
 
@@ -643,16 +762,6 @@ mathsimd_func(mat4_t, mat4_rot_axis)(vec4_t axis, real_t angle)
 	vec4_set_result(&m.w, mrw);
 
 	return m;
-
-	/*
-	return mat4
-	(
-		vec4((1 - ca) * v.x * v.x + ca, (1 - ca) * v.y * v.x + sa * v.z, (1 - ca) * v.z * v.x - sa * v.y, 0),
-		vec4((1 - ca) * v.x * v.y - sa * v.z, (1 - ca) * v.y * v.y + ca, (1 - ca) * v.z * v.y + sa * v.x, 0),
-		vec4((1 - ca) * v.x * v.z + sa * v.y, (1 - ca) * v.y * v.z - sa * v.x, (1 - ca) * v.z * v.z + ca, 0),
-		vec4(0, 0, 0, 1)
-	);
-	*/
 }
 
 mathsimd_func(mat4_t, mat4_rot_euler)(real_t yaw, real_t pitch, real_t roll)
@@ -702,31 +811,6 @@ mathsimd_func(mat4_t, mat4_rot_euler)(real_t yaw, real_t pitch, real_t roll)
 	vec4_set_result(&m.w, resultw);
 
 	return m;
-
-
-	/*
-	real_t
-		sr = r_sin(yaw),
-		cr = r_cos(yaw),
-		sp = r_sin(pitch),
-		cp = r_cos(pitch),
-		sy = r_sin(roll),
-		cy = r_cos(roll);
-
-	real_t
-		srcp = sr * cp,
-		srsp = sr * sp,
-		crcp = cr * cp,
-		crsp = cr * sp;
-
-	return mat4 //TODO: Optimization
-	(
-		vec4( cr * cy + srsp * sy,  srcp,  -sy * cr + srsp * cy, 0),
-		vec4(-sr * cy + crsp * sy,  crcp,   sy * sr + crsp * cy, 0),
-		vec4( sy * cp,               -sp,   cp * cy,             0),
-		vec4(0, 0, 0, 1)
-	);
-	*/
 }
 
 mathsimd_func(mat4_t,mat4_from_quat)(quat_t q)
@@ -963,6 +1047,17 @@ mathsimd_func(mat4_t,mat4_mul)(mat4_t l, mat4_t r)
 		_mm_add_ps(_mm_mul_ps(t1, mrx), _mm_mul_ps(t2, mry)),
 		_mm_add_ps(_mm_mul_ps(t3, mrz), _mm_mul_ps(t4, mrw))));
 	return o;
+}
+
+mathsimd_func(mat4_t, mat4_mul_s)(mat4_t m, real_t s)
+{
+	__m128 ms = _mm_load1_ps(&s);
+	mat4_t r;
+	vec4_set_result(&r.x, _mm_mul_ps(vec4_load(m.x), ms));
+	vec4_set_result(&r.y, _mm_mul_ps(vec4_load(m.y), ms));
+	vec4_set_result(&r.z, _mm_mul_ps(vec4_load(m.z), ms));
+	vec4_set_result(&r.w, _mm_mul_ps(vec4_load(m.w), ms));
+	return r;
 }
 
 mathsimd_func(mat4_t,mat4_mul_transpose)(mat4_t l, mat4_t r)

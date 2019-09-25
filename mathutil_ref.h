@@ -4,12 +4,12 @@
 #include"mathutil_conf.h"
 #include"mathutil.h"
 
-#if MATHUTIL_DETECT_CPU
+#if MATHUTIL_REFONLY
+#define math_func(r,n,arg) r n arg
+#else
 #define math_func(r,n,arg) r n ## _ref arg
-
-#include"mathutil_funclist.h"
-
-#undef math_func
 #endif // !MATHUTIL_DETECT_CPU
+#include"mathutil_funclist.h"
+#undef math_func
 
 #endif // _MATHUTIL_BASE_H_

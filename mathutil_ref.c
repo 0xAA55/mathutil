@@ -4,13 +4,13 @@
 #if MATHUTIL_DETECT_CPU
 #  define base_func(r,n) r n ## _ref
 #else
-#if MATHUTIL_REFONLY
-#  define base_func(r,n) r n
-#else
-#  define base_func(r,n) r n ## _ref
-#  define math_func(r,n,arg) math_extern r n arg
-#  include "mathutil_funclist.h"
-#endif
+#  if MATHUTIL_REFONLY
+#    define base_func(r,n) r n
+#  else
+#    define base_func(r,n) r n ## _ref
+#    define math_func(r,n,arg) math_extern r n arg
+#    include "mathutil_funclist.h"
+#  endif
 #endif
 
 base_func(real_t,r_rnd)(uint32_t *p_seed)
@@ -65,7 +65,39 @@ base_func(real_t,r_atan)(real_t x)
 
 base_func(real_t,r_exp)(real_t x)
 {
-	return (real_t)exp(x);
+	static const float exp2f_p[] =
+	{
+		1.535336188319500e-4f,
+		1.339887440266574e-3f,
+		9.618437357674640e-3f,
+		5.550332471162809e-2f,
+		2.402264791363012e-1f,
+		6.931472028550421e-1f,
+		1.000000000000000f
+	};
+
+	float ipart, fpart;
+	union
+	{
+		float f;
+		uint32_t u;
+		int32_t i;
+	}epart;
+
+	ipart = (float)r_floor(x + 0.5f);
+	fpart = x - ipart;
+	epart.i = ((int32_t)ipart + 127) << 23;
+
+	x = exp2f_p[0];
+	x = x * fpart + exp2f_p[1];
+	x = x * fpart + exp2f_p[2];
+	x = x * fpart + exp2f_p[3];
+	x = x * fpart + exp2f_p[4];
+	x = x * fpart + exp2f_p[5];
+	x = x * fpart + exp2f_p[6];
+
+	return epart.f * x;
+	// return (real_t)exp(x);
 }
 
 base_func(real_t,r_log)(real_t x)

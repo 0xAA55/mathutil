@@ -3,13 +3,16 @@
 
 // Option: MATHUTIL_USE_DOUBLE
 // This option is used to determine the basic calculating unit (which is 'real_t') of mathutil.
-// Normally, 'real_t' will be defined to 'float', and it can be defined to 'double'
+// Normally, 'real_t' will be defined to 'float', and it can be defined to 'double'.
+// This option changes API parameter type, 
 #ifndef MATHUTIL_USE_DOUBLE
 #  define MATHUTIL_USE_DOUBLE 0
 #endif
 // Option: MATHUTIL_DETECT_CPU
 // This option changes the behavior of runtime CPU detection.
-// The runtime CPU detection is working for compatibility
+// The runtime CPU detection is designed for compatibility, but it may causes the complexity of data storeing,
+// result in low efficiency.
+// Define this option to 0 disables the runtime CPU detection, and enables compile time intrinsics selection.
 #ifndef MATHUTIL_DETECT_CPU
 #  define MATHUTIL_DETECT_CPU 0
 #endif

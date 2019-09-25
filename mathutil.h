@@ -107,4 +107,6 @@ typedef struct mat4_struct
 #define math_extern extern
 #endif
 
+#include"mathutil_funclist.h"
+
 #endif // !_MATHUTIL_H_

@@ -1,3 +1,8 @@
+// mathutil_sse
+// Author: 0xAA55
+// The implemention of mathutil API which uses SSE intrinsics.
+
+
 #ifndef _MATHUTIL_SSE_H_
 #define _MATHUTIL_SSE_H_
 

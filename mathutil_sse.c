@@ -1181,6 +1181,23 @@ int mathutil_sse_implements()
 
 #else // MATHUTIL_USE_DOUBLE
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if MATHUTIL_DETECT_CPU
 int mathutil_sse_implements()
 {

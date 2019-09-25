@@ -1,9 +1,15 @@
 #ifndef _MATHUTIL_CONF_H_
 #define _MATHUTIL_CONF_H_ 1
 
+// Option: MATHUTIL_USE_DOUBLE
+// This option is used to determine the basic calculating unit (which is 'real_t') of mathutil.
+// Normally, 'real_t' will be defined to 'float', and it can be defined to 'double'
 #ifndef MATHUTIL_USE_DOUBLE
 #  define MATHUTIL_USE_DOUBLE 0
 #endif
+// Option: MATHUTIL_DETECT_CPU
+// This option changes the behavior of runtime CPU detection.
+// The runtime CPU detection is working for compatibility
 #ifndef MATHUTIL_DETECT_CPU
 #  define MATHUTIL_DETECT_CPU 0
 #endif

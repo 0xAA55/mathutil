@@ -34,4 +34,17 @@ static void mathutil_init()
 #	include"mathutil_funclist.h"
 #	undef math_func
 
-#endif
+#else // !MATHUTIL_DETECT_CPU
+
+
+
+
+
+
+
+
+
+
+
+
+#endif // !MATHUTIL_DETECT_CPU

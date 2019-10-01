@@ -1,10 +1,35 @@
+// MIT License
+// 
+// Copyright (c) 2019 0xaa55
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 
 #if defined(_MATHUTIL_H_)
+
+// This header can be included multiple times and often used for function declaration.
 
 #ifndef math_func
 #  define math_func(r,n,arg) r n arg
 #endif
 
+// Functions for scalar numbers
 math_func(real_t, r_rnd, (uint32_t *p_seed));
 math_func(real_t, r_sin, (real_t x));
 math_func(real_t, r_cos, (real_t x));
@@ -27,6 +52,7 @@ math_func(real_t, r_lerp, (real_t a, real_t b, real_t s));
 math_func(real_t, r_hermite, (real_t s));
 math_func(real_t, r_slerp, (real_t a, real_t b, real_t s));
 
+// Functions for vectors
 math_func(vec4_t, vec4, (real_t x, real_t y, real_t z, real_t w));
 math_func(vec4_t, vec4_flushcomp, (vec4_t v));
 math_func(vec4_t, vec4_abs, (vec4_t v));
@@ -51,12 +77,14 @@ math_func(vec4_t, vec4_mul_mat4_transpose, (vec4_t v, mat4_t m));
 math_func(vec4_t, vec4_lerp, (vec4_t v1, vec4_t v2, real_t s));
 math_func(vec4_t, vec4_slerp, (vec4_t v1, vec4_t v2, real_t s));
 
+// Functions for quaternions, which can be used to describe rotation
 math_func(quat_t, quat, (real_t x, real_t y, real_t z, real_t w));
 math_func(quat_t, quat_flushcomp, (quat_t q));
 math_func(quat_t, quat_rot_axis, (vec4_t axis, real_t angle));
 math_func(quat_t, quat_mul, (quat_t q1, quat_t q2));
 math_func(quat_t, quat_add_vec, (quat_t q, vec4_t v, real_t s));
 
+// Functions for matrices
 math_func(mat4_t, mat4, (vec4_t mx, vec4_t my, vec4_t mz, vec4_t mw));
 math_func(mat4_t, mat4_flushcomp, (mat4_t m));
 math_func(mat4_t, mat4_rot_x, (real_t angle));

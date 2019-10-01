@@ -1,3 +1,25 @@
+// MIT License
+// 
+// Copyright (c) 2019 0xaa55
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #ifndef _MATHUTIL_CONF_H_
 #define _MATHUTIL_CONF_H_ 1
 
@@ -18,6 +40,7 @@
 #endif
 
 #if defined(_MSC_VER)
+#  define COMPILER_FLAVOR 1
 #  define ALIGNED_(x) __declspec(align(x))
 #  ifndef MATHUTIL_VAR_NOT_ALIGNED
 #    define MATHUTIL_VAR_NOT_ALIGNED 0
@@ -36,6 +59,7 @@
 #    define __amd64__ 1
 #  endif
 #elif defined(__GNUC__) || defined(__clang__)
+#  define COMPILER_FLAVOR 2
 #  define ALIGNED_(x) __attribute__ ((aligned(x)))
 #  ifndef MATHUTIL_REFONLY
 #    define MATHUTIL_REFONLY 0
@@ -44,6 +68,7 @@
 #    define MATHUTIL_VAR_NOT_ALIGNED 0
 #  endif
 #else
+#  define COMPILER_FLAVOR 0
 #  define ALIGNED_(x)
 #  if !MATHUTIL_DETECT_CPU
 #    ifndef MATHUTIL_REFONLY
@@ -80,7 +105,7 @@
 #  if defined(__XOP__)
 #    define HAVE_XOP 1
 #  endif
-#endif // !MATHUTIL_DETECT_CPU
+#endif // !!MATHUTIL_DETECT_CPU && !MATHUTIL_REFONLY
 
 #ifdef HAVE_AVX2
 #  ifndef HAVE_AVX
@@ -103,11 +128,18 @@
 #  endif
 #endif
 #ifdef HAVE_SSSE3
+#  define HAVE_SSE3 1
+#endif
+#ifdef HAVE_SSE3
 #  define HAVE_SSE2 1
 #endif
 #ifdef HAVE_SSE2
 #  define HAVE_SSE 1
 #endif
+
+#if !defined(MATHUTIL_REFONLY)
+#define MATHUTIL_REFONLY (!(HAVE_SSE || HAVE_SSE2 || HAVE_SSE3 || HAVE_SSSE3 || HAVE_SSE41 || HAVE_AVX || HAVE_XOP || HAVE_AVX2))
+#endif // !defined(MATHUTIL_REFONLY)
 
 #include <stddef.h>
 #include <stdint.h>
@@ -115,11 +147,7 @@
 #if MATHUTIL_DETECT_CPU
 #define math_func(r,n,arg) math_extern r(*n)arg
 #endif // !MATHUTIL_DETECT_CPU
-
 #include "mathutil_funclist.h"
-
-#if defined(math_func)
 #undef math_func
-#endif // !defined(math_func)
 
 #endif _MATHUTIL_CONF_H_

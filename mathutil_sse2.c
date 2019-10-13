@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include"mathutil_sse.h"
 #include"mathutil_sse2.h"
 #include"cpudetect.h"
 #include<emmintrin.h>
@@ -35,6 +36,11 @@
 #else // COMPILER_FLAVOR == else
 #  define _compiler_barrier (void)1
 #endif // !COMPILER_FLAVOR
+
+#ifndef COMPILER_FLAVOR != 1
+#  define _mm_castpd_si128(a) (__m128i)(a)
+#  define _mm_castsi128_pd(a) (__m128)(a)
+#endif
 
 #if MATHUTIL_VAR_NOT_ALIGNED && !MATHUTIL_VAR_ASSUME_ALIGNED
 #define _mm_load_ps_a _mm_loadu_ps
@@ -52,25 +58,44 @@
 #define _mm_store_si128_a _mm_store_si128
 #endif
 
-#define mathsimd_func(r,n) r n
+#define mathsimd_func(r,n) r n ## _sse2
 
 #if !MATHUTIL_USE_DOUBLE
 
-mathsimd_func(vec4_t,vec4_abs_sse2)(vec4_t v)
+static __m128 vec4_load_sse2(vec4_t v)
+{
+#if VEC4_WITH_M128_XYZW
+	return v.m_xyzw;
+#else
+	return _mm_load_ps_a(&v.x);
+#endif
+}
+
+// Internal function for assignment of a vector
+static void vec4_set_result_sse2(vec4_p v, __m128 m)
+{
+#if VEC4_WITH_M128_XYZW
+	v->m_xyzw = m;
+#else
+	_mm_store_ps_a(&v->x, m);
+#endif
+}
+
+mathsimd_func(vec4_t,vec4_abs)(vec4_t v)
 {
 	vec4_t r;
 	_mm_store_si128_a((__m128i*)&r.x, _mm_and_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x7fffffff)));
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_sgn_sse2)(vec4_t v)
+mathsimd_func(vec4_t,vec4_sgn)(vec4_t v)
 {
 	vec4_t r;
 	_mm_store_si128_a((__m128i*)&r.x, _mm_or_si128(_mm_and_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x80000000)), _mm_set1_epi32(0x3F800000)));
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_invert_sse2)(vec4_t v)
+mathsimd_func(vec4_t,vec4_invert)(vec4_t v)
 {
 	vec4_t r;
 	_mm_store_si128_a((__m128i*)&r.x, _mm_xor_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x80000000)));
@@ -94,7 +119,7 @@ int mathutil_sse2_implements()
 
 #else // MATHUTIL_USE_DOUBLE
 
-mathsimd_func(vec4_t,vec4_abs_sse2)(vec4_t v)
+mathsimd_func(vec4_t,vec4_abs)(vec4_t v)
 {
 	vec4_t r;
 	static const ALIGNED_(16) int64_t ins[2] = {0x7fffffffffffffffll, 0x7fffffffffffffffll};
@@ -104,7 +129,7 @@ mathsimd_func(vec4_t,vec4_abs_sse2)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_sgn_sse2)(vec4_t v)
+mathsimd_func(vec4_t,vec4_sgn)(vec4_t v)
 {
 	vec4_t r;
 	static const ALIGNED_(16) int64_t isgnb[2] = {0x8000000000000000ll, 0x8000000000000000ll};
@@ -116,7 +141,7 @@ mathsimd_func(vec4_t,vec4_sgn_sse2)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_invert_sse2)(vec4_t v)
+mathsimd_func(vec4_t,vec4_invert)(vec4_t v)
 {
 	vec4_t r;
 	static const ALIGNED_(16) int64_t isgnb[2] = {0x8000000000000000ll, 0x8000000000000000ll};
@@ -126,7 +151,7 @@ mathsimd_func(vec4_t,vec4_invert_sse2)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(real_t,vec4_length_sse2)(vec4_t v)
+mathsimd_func(real_t,vec4_length)(vec4_t v)
 {
 	__m128d mvxy = _mm_load_pd_a(&v.x);
 	__m128d mvzw = _mm_load_pd_a(&v.z);
@@ -140,7 +165,7 @@ mathsimd_func(real_t,vec4_length_sse2)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_normalize_sse2)(vec4_t v)
+mathsimd_func(vec4_t,vec4_normalize)(vec4_t v)
 {
 	vec4_t r;
 	__m128d mvxy = _mm_load_pd_a(&v.x);
@@ -153,7 +178,7 @@ mathsimd_func(vec4_t,vec4_normalize_sse2)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_scale_sse2)(vec4_t v, real_t s)
+mathsimd_func(vec4_t,vec4_scale)(vec4_t v, real_t s)
 {
 	vec4_t r;
 	__m128d ms = _mm_load1_pd(&s);
@@ -162,7 +187,7 @@ mathsimd_func(vec4_t,vec4_scale_sse2)(vec4_t v, real_t s)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_clamp_sse2)(vec4_t v, real_t min_, real_t max_)
+mathsimd_func(vec4_t,vec4_clamp)(vec4_t v, real_t min_, real_t max_)
 {
 	vec4_t r;
 	__m128i ml, mh;
@@ -175,7 +200,7 @@ mathsimd_func(vec4_t,vec4_clamp_sse2)(vec4_t v, real_t min_, real_t max_)
 	return r;
 }
 
-mathsimd_func(real_t,vec4_dot_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(real_t,vec4_dot)(vec4_t v1, vec4_t v2)
 {
 	__m128d mxaddz_yaddw = _mm_add_pd(
 		_mm_mul_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x)),
@@ -187,7 +212,7 @@ mathsimd_func(real_t,vec4_dot_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_add_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_add)(vec4_t v1, vec4_t v2)
 {
 	vec4_t r;
 	__m128d mxy = _mm_add_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x));
@@ -197,7 +222,7 @@ mathsimd_func(vec4_t,vec4_add_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_sub_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_sub)(vec4_t v1, vec4_t v2)
 {
 	vec4_t r;
 	__m128d mxy = _mm_sub_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x));
@@ -207,7 +232,7 @@ mathsimd_func(vec4_t,vec4_sub_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_mul_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_mul)(vec4_t v1, vec4_t v2)
 {
 	vec4_t r;
 	__m128d mxy = _mm_mul_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x));
@@ -217,7 +242,7 @@ mathsimd_func(vec4_t,vec4_mul_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_div_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_div)(vec4_t v1, vec4_t v2)
 {
 	vec4_t r;
 	__m128d mxy = _mm_div_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x));
@@ -227,7 +252,7 @@ mathsimd_func(vec4_t,vec4_div_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_min_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_min)(vec4_t v1, vec4_t v2)
 {
 	vec4_t r;
 	_mm_store_pd_a(&r.x, _mm_min_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x)));
@@ -235,7 +260,7 @@ mathsimd_func(vec4_t,vec4_min_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_max_sse2)(vec4_t v1, vec4_t v2)
+mathsimd_func(vec4_t,vec4_max)(vec4_t v1, vec4_t v2)
 {
 	vec4_t r;
 	_mm_store_pd_a(&r.x, _mm_max_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x)));
@@ -243,7 +268,7 @@ mathsimd_func(vec4_t,vec4_max_sse2)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_mul_mat4_sse2)(vec4_t v, mat4_t m)
+mathsimd_func(vec4_t,vec4_mul_mat4)(vec4_t v, mat4_t m)
 {
 	vec4_t r;
 	
@@ -260,7 +285,7 @@ mathsimd_func(vec4_t,vec4_mul_mat4_sse2)(vec4_t v, mat4_t m)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_mul_mat4_transpose_sse2)(vec4_t v, mat4_t m)
+mathsimd_func(vec4_t,vec4_mul_mat4_transpose)(vec4_t v, mat4_t m)
 {
 	vec4_t r;
 	
@@ -287,7 +312,7 @@ mathsimd_func(vec4_t,vec4_mul_mat4_transpose_sse2)(vec4_t v, mat4_t m)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_lerp_sse2)(vec4_t v1, vec4_t v2, real_t s)
+mathsimd_func(vec4_t,vec4_lerp)(vec4_t v1, vec4_t v2, real_t s)
 {
 	__m128d maxy = _mm_load_pd_a(&v1.x);
 	__m128d mazw = _mm_load_pd_a(&v1.z);
@@ -301,7 +326,7 @@ mathsimd_func(vec4_t,vec4_lerp_sse2)(vec4_t v1, vec4_t v2, real_t s)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_slerp_sse2)(vec4_t v1, vec4_t v2, real_t s)
+mathsimd_func(vec4_t,vec4_slerp)(vec4_t v1, vec4_t v2, real_t s)
 {
 	__m128d maxy = _mm_load_pd_a(&v1.x);
 	__m128d mazw = _mm_load_pd_a(&v1.z);
@@ -317,7 +342,7 @@ mathsimd_func(vec4_t,vec4_slerp_sse2)(vec4_t v1, vec4_t v2, real_t s)
 	return r;
 }
 
-mathsimd_func(quat_t,quat_mul_sse2)(quat_t q1, quat_t q2)
+mathsimd_func(quat_t,quat_mul)(quat_t q1, quat_t q2)
 {
 	__m128d mq1xy = _mm_load_pd_a(&q1.x);
 	__m128d mq1zw = _mm_load_pd_a(&q1.z);
@@ -344,7 +369,7 @@ mathsimd_func(quat_t,quat_mul_sse2)(quat_t q1, quat_t q2)
 	return r;
 }
 
-mathsimd_func(quat_t,quat_add_vec_sse2)(quat_t q, vec4_t v, real_t s)
+mathsimd_func(quat_t,quat_add_vec)(quat_t q, vec4_t v, real_t s)
 {
 	__m128d mq1xy = _mm_load_pd_a(&v.x);
 	__m128d mq1zw = _mm_load_sd(&v.z);
@@ -374,7 +399,7 @@ mathsimd_func(quat_t,quat_add_vec_sse2)(quat_t q, vec4_t v, real_t s)
 	return r;
 }
 
-mathsimd_func(mat4_t,mat4_transpose_sse2)(mat4_t m)
+mathsimd_func(mat4_t,mat4_transpose)(mat4_t m)
 {
 	__m128d mx_xy;
 	__m128d my_xy;
@@ -426,7 +451,7 @@ mathsimd_func(mat4_t,mat4_transpose_sse2)(mat4_t m)
 	return r;
 }
 
-mathsimd_func(mat4_t,mat4_add_sse2)(mat4_t l, mat4_t r)
+mathsimd_func(mat4_t,mat4_add)(mat4_t l, mat4_t r)
 {
 	mat4_t o;
 	_mm_store_pd_a(&o.x.x, _mm_add_pd(_mm_load_pd_a(&l.x.x), _mm_load_pd_a(&r.x.x)));
@@ -440,7 +465,7 @@ mathsimd_func(mat4_t,mat4_add_sse2)(mat4_t l, mat4_t r)
 	return o;
 }
 
-mathsimd_func(mat4_t,mat4_add_s_sse2)(mat4_t m, real_t s)
+mathsimd_func(mat4_t,mat4_add_s)(mat4_t m, real_t s)
 {
 	__m128d ms = _mm_load1_pd(&s);
 	mat4_t r;
@@ -455,7 +480,7 @@ mathsimd_func(mat4_t,mat4_add_s_sse2)(mat4_t m, real_t s)
 	return r;
 }
 
-mathsimd_func(mat4_t,mat4_add_transpose_sse2)(mat4_t l, mat4_t r)
+mathsimd_func(mat4_t,mat4_add_transpose)(mat4_t l, mat4_t r)
 {
 	__m128d mx_xy;
 	__m128d my_xy;
@@ -507,7 +532,7 @@ mathsimd_func(mat4_t,mat4_add_transpose_sse2)(mat4_t l, mat4_t r)
 	return o;
 }
 
-mathsimd_func(mat4_t,mat4_sub_sse2)(mat4_t l, mat4_t r)
+mathsimd_func(mat4_t,mat4_sub)(mat4_t l, mat4_t r)
 {
 	mat4_t o;
 	_mm_store_pd_a(&o.x.x, _mm_sub_pd(_mm_load_pd_a(&l.x.x), _mm_load_pd_a(&r.x.x)));
@@ -521,7 +546,7 @@ mathsimd_func(mat4_t,mat4_sub_sse2)(mat4_t l, mat4_t r)
 	return o;
 }
 
-mathsimd_func(mat4_t,mat4_sub_s_sse2)(mat4_t m, real_t s)
+mathsimd_func(mat4_t,mat4_sub_s)(mat4_t m, real_t s)
 {
 	__m128d ms = _mm_load1_pd(&s);
 	mat4_t r;
@@ -536,7 +561,7 @@ mathsimd_func(mat4_t,mat4_sub_s_sse2)(mat4_t m, real_t s)
 	return r;
 }
 
-mathsimd_func(mat4_t,mat4_sub_transpose_sse2)(mat4_t l, mat4_t r)
+mathsimd_func(mat4_t,mat4_sub_transpose)(mat4_t l, mat4_t r)
 {
 	__m128d mx_xy;
 	__m128d my_xy;
@@ -587,7 +612,7 @@ mathsimd_func(mat4_t,mat4_sub_transpose_sse2)(mat4_t l, mat4_t r)
 	return o;
 }
 
-mathsimd_func(mat4_t,mat4_mul_sse2)(mat4_t l, mat4_t r)
+mathsimd_func(mat4_t,mat4_mul)(mat4_t l, mat4_t r)
 {
 	__m128d mrx_xy = _mm_load_pd_a(&r.x.x);
 	__m128d mry_xy = _mm_load_pd_a(&r.y.x);
@@ -640,7 +665,7 @@ mathsimd_func(mat4_t,mat4_mul_sse2)(mat4_t l, mat4_t r)
 	return o;
 }
 
-mathsimd_func(mat4_t,mat4_mul_transpose_sse2)(mat4_t l, mat4_t r)
+mathsimd_func(mat4_t,mat4_mul_transpose)(mat4_t l, mat4_t r)
 {
 	__m128d mrx_xy = _mm_load_pd_a(&r.x.x);
 	__m128d mry_xy = _mm_load_pd_a(&r.y.x);

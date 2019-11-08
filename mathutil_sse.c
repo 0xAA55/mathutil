@@ -40,7 +40,7 @@
 #  define _compiler_barrier (void)1
 #endif // !COMPILER_FLAVOR
 
-#ifndef COMPILER_FLAVOR != 1
+#if COMPILER_FLAVOR != 1
 #  define _mm_castps_si128(a) (__m128i)(a)
 #  define _mm_castsi128_ps(a) (__m128)(a)
 #endif
@@ -1250,14 +1250,14 @@ int mathutil_sse_implements()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ## _sse arg __attribute__ ((weak, alias ("" # n # "_ref")));
+#define math_func(r,n,arg,carg) r n ## _sse arg __attribute__ ((weak, alias ("" # n # "_ref")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ## _sse arg { return n ## _ref carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ## _sse arg { return n ## _ref carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR

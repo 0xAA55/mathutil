@@ -37,7 +37,9 @@
 #  define _compiler_barrier (void)1
 #endif // !COMPILER_FLAVOR
 
-#ifndef COMPILER_FLAVOR != 1
+#if COMPILER_FLAVOR != 1
+#  define _mm_castps_si128(a) (__m128i)(a)
+#  define _mm_castsi128_ps(a) (__m128)(a)
 #  define _mm_castpd_si128(a) (__m128i)(a)
 #  define _mm_castsi128_pd(a) (__m128)(a)
 #endif
@@ -62,12 +64,161 @@
 
 #if !MATHUTIL_USE_DOUBLE
 
+//=============================================================================
+// Scalar functions
+// The scalar functions returns a real_t which is float or double, configured
+// by options.
+// NOTE: See mathutil_sse
+//=============================================================================
+
+mathsimd_func(real_t, r_rnd)(uint32_t* p_seed)
+{
+	// Inherited from previous implements
+	return r_rnd_sse(p_seed);
+}
+
+mathsimd_func(real_t, r_sin)(real_t x)
+{
+	// Inherited from previous implements
+	return r_sin_sse(x);
+}
+
+mathsimd_func(real_t, r_cos)(real_t x)
+{
+	// Inherited from previous implements
+	return r_cos_sse(x);
+}
+
+mathsimd_func(real_t, r_tan)(real_t x)
+{
+	// Inherited from previous implements
+	return r_tan_sse(x);
+}
+
+mathsimd_func(real_t, r_abs)(real_t x)
+{
+	// Inherited from previous implements
+	return r_abs_sse(x);
+}
+
+mathsimd_func(real_t, r_sgn)(real_t x)
+{
+	// Inherited from previous implements
+	return r_sgn_sse(x);
+}
+
+mathsimd_func(real_t, r_sqr)(real_t x)
+{
+	// Inherited from previous implements
+	return r_sqr_sse(x);
+}
+
+mathsimd_func(real_t, r_floor)(real_t x)
+{
+	// Inherited from previous implements
+	return r_floor_sse(x);
+}
+
+mathsimd_func(real_t, r_ceil)(real_t x)
+{
+	// Inherited from previous implements
+	return r_ceil_sse(x);
+}
+
+mathsimd_func(real_t, r_atan)(real_t x)
+{
+	// Inherited from previous implements
+	return r_atan_sse(x);
+}
+
+mathsimd_func(real_t, r_exp)(real_t x)
+{
+	// Inherited from previous implements
+	return r_exp_sse(x);
+}
+
+mathsimd_func(real_t, r_log)(real_t x)
+{
+	// Inherited from previous implements
+	return r_log_sse(x);
+}
+
+mathsimd_func(real_t, r_pow)(real_t x, real_t y)
+{
+	// Inherited from previous implements
+	return r_pow_sse(x, y);
+}
+
+mathsimd_func(real_t, r_mod)(real_t x, real_t y)
+{
+	// Inherited from previous implements
+	return r_mod_sse(x, y);
+}
+
+mathsimd_func(real_t, r_max)(real_t x, real_t y)
+{
+	// Inherited from previous implements
+	return r_max_sse(x, y);
+}
+
+mathsimd_func(real_t, r_min)(real_t x, real_t y)
+{
+	// Inherited from previous implements
+	return r_min_sse(x, y);
+}
+
+mathsimd_func(real_t, r_atan2)(real_t y, real_t x)
+{
+	// Inherited from previous implements
+	return r_atan2_sse(y, x);
+}
+
+mathsimd_func(real_t, r_clamp)(real_t n, real_t min_, real_t max_)
+{
+	// Inherited from previous implements
+	return r_clamp_sse(n, min_, max_);
+}
+
+mathsimd_func(real_t, r_lerp)(real_t a, real_t b, real_t s)
+{
+	// Inherited from previous implements
+	return r_lerp_sse(a, b, s);
+}
+
+mathsimd_func(real_t, r_hermite)(real_t s)
+{
+	// Inherited from previous implements
+	return r_hermite_sse(s);
+}
+
+mathsimd_func(real_t, r_slerp)(real_t a, real_t b, real_t s)
+{
+	// Inherited from previous implements
+	return r_slerp_sse(a, b, s);
+}
+
+//=============================================================================
+// Vector functions
+// The vector functions returns a vec4_t, which may also contains a __m128
+// register as an union member.
+// NOTE: See mathutil_sse
+//=============================================================================
+
 static __m128 vec4_load_sse2(vec4_t v)
 {
 #if VEC4_WITH_M128_XYZW
 	return v.m_xyzw;
 #else
 	return _mm_load_ps_a(&v.x);
+#endif
+}
+
+static __m128i vec4_loadi_sse2(vec4_t v)
+{
+#if VEC4_WITH_M128_XYZW
+	return _mm_castps_si128(v.m_xyzw);
+#else
+	return _mm_castps_si128(_mm_load_ps_a(&v.x));
 #endif
 }
 
@@ -81,24 +232,41 @@ static void vec4_set_result_sse2(vec4_p v, __m128 m)
 #endif
 }
 
+// Internal function for assignment __m128i to a vector
+static void vec4_set_iresult_sse2(vec4_p v, __m128i m)
+{
+#if VEC4_WITH_M128_XYZW
+	v->m_xyzw = _mm_castsi128_ps(m);
+#else
+	_mm_store_ps_a(&v->x, _mm_castsi128_ps(m));
+#endif
+}
+
+
+mathsimd_func(vec4_t, vec4)(real_t x, real_t y, real_t z, real_t w)
+{
+	// Inherited from previous implements
+	return vec4_sse(x, y, z, w);
+}
+
 mathsimd_func(vec4_t,vec4_abs)(vec4_t v)
 {
 	vec4_t r;
-	_mm_store_si128_a((__m128i*)&r.x, _mm_and_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x7fffffff)));
+	vec4_set_iresult_sse2(&r, _mm_and_si128(vec4_loadi_sse2(v), _mm_set1_epi32(0x7fffffff)));
 	return r;
 }
 
 mathsimd_func(vec4_t,vec4_sgn)(vec4_t v)
 {
 	vec4_t r;
-	_mm_store_si128_a((__m128i*)&r.x, _mm_or_si128(_mm_and_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x80000000)), _mm_set1_epi32(0x3F800000)));
+	vec4_set_iresult_sse2(&r, _mm_or_si128(_mm_and_si128(vec4_loadi_sse2(v), _mm_set1_epi32(0x80000000)), _mm_set1_epi32(0x3F800000)));
 	return r;
 }
 
 mathsimd_func(vec4_t,vec4_invert)(vec4_t v)
 {
 	vec4_t r;
-	_mm_store_si128_a((__m128i*)&r.x, _mm_xor_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x80000000)));
+	vec4_set_iresult_sse2(&r, _mm_xor_si128(vec4_loadi_sse2(v), _mm_set1_epi32(0x80000000)));
 	return r;
 }
 
@@ -761,3 +929,4 @@ int mathutil_sse2_implements()
 #endif // MATHUTIL_DETECT_CPU
 
 #endif // !MATHUTIL_USE_DOUBLE
+

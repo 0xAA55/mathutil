@@ -131,7 +131,7 @@ typedef struct mat4_struct
 
 #if !defined(MATHUTIL_INTERNAL)
 
-#define math_func(r,n,arg) math_extern r n arg
+#define math_func(r,n,arg,carg) math_extern r n arg
 #include"mathutil_funclist.h"
 #undef math_func
 

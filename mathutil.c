@@ -32,7 +32,7 @@
 #if MATHUTIL_DETECT_CPU
 void mathutil_ref_implements()
 {
-#	define math_func(r,n,arg) n = n ## _ref
+#	define math_func(r,n,arg,carg) n = n ## _ref
 #	include"mathutil_funclist.h"
 #	undef math_func
 }
@@ -53,7 +53,7 @@ static void mathutil_init()
 	g_mathutil_initialized = 1;
 }
 
-#	define math_func(r,n,arg) r n ## _first arg{mathutil_init(); return n carg;} r(*n)arg = n ## _first
+#	define math_func(r,n,arg,carg) r n ## _first arg{mathutil_init(); return n carg;} r(*n)arg = n ## _first
 #	include"mathutil_funclist.h"
 #	undef math_func
 
@@ -63,14 +63,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_avx2")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_avx2")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _avx2 carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _avx2 carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -79,14 +79,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_xop")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_xop")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _xop carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _xop carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -95,14 +95,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_avx")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_avx")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _avx carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _avx carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -111,14 +111,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse41")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse41")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _sse41 carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _sse41 carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -127,14 +127,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_ssse3")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_ssse3")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _ssse3 carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _ssse3 carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -143,14 +143,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse3")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse3")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _sse3 carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _sse3 carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -159,14 +159,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse2")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse2")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _sse2 carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _sse2 carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR
@@ -175,14 +175,14 @@ static void mathutil_init()
 
 #if COMPILER_FLAVOR == 2
 
-#define math_func(r,n,arg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse")));
+#define math_func(r,n,arg,carg) r n ##  arg __attribute__ ((weak, alias ("" # n # "_sse")));
 #include"mathutil_funclist.h"
 #undef math_func
 
 #else // COMPILER_FLAVOR == else
 
-#define math_func(r,n,arg, carg) r n ##  arg { return n ## _sse carg;}
-#include"mathutil_funclist_withcarg.h"
+#define math_func(r,n,arg,carg) r n ##  arg { return n ## _sse carg;}
+#include"mathutil_funclist.h"
 #undef math_func
 
 #endif // COMPILER_FLAVOR

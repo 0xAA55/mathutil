@@ -30,7 +30,7 @@
 #    define base_func(r,n) r n
 #  else
 #    define base_func(r,n) r n ## _ref
-#    define math_func(r,n,arg) math_extern r n arg
+#    define math_func(r,n,arg,carg) math_extern r n arg
 #    include "mathutil_funclist.h"
 #  endif
 #endif

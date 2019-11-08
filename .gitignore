@@ -10,5 +10,7 @@
 *.opensdf
 *.filters
 *.user
+.vs/
 msvc/.vs/
+msvc/mathutil.sln
 msvc/intermediate/

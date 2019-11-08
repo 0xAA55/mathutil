@@ -24,14 +24,21 @@
 #include"cpudetect.h"
 #include<pmmintrin.h>
 
-#if _MSC_VER
-#if !__INTELLISENSE__
-#define _compiler_barrier _ReadWriteBarrier()
-#else
-#define _compiler_barrier
-#endif
-#elif defined(__GNUC__) || defined(clang)
-#define _compiler_barrier asm volatile("" ::: "memory")
+#if COMPILER_FLAVOR == 1
+#  if !__INTELLISENSE__
+#    define _compiler_barrier _ReadWriteBarrier()
+#  else
+#    define _compiler_barrier
+#  endif
+#elif COMPILER_FLAVOR == 2
+#  define _compiler_barrier asm volatile("" ::: "memory")
+#else // COMPILER_FLAVOR == else
+#  define _compiler_barrier (void)1
+#endif // !COMPILER_FLAVOR
+
+#ifndef COMPILER_FLAVOR != 1
+#  define _mm_castpd_si128(a) (__m128i)(a)
+#  define _mm_castsi128_pd(a) (__m128)(a)
 #endif
 
 #if MATHUTIL_VAR_NOT_ALIGNED && !MATHUTIL_VAR_ASSUME_ALIGNED
@@ -50,32 +57,32 @@
 #define _mm_store_si128_a _mm_store_si128
 #endif
 
-#define mathsimd_func(r,n) r n
+#define mathsimd_func(r,n) r n ## _sse3
 
 #if !MATHUTIL_USE_DOUBLE
 
-mathsimd_func(vec4_t,vec4_abs_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_abs)(vec4_t v)
 {
 	vec4_t r;
 	_mm_store_si128_a((__m128i*)&r.x, _mm_and_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x7fffffff)));
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_sgn_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_sgn)(vec4_t v)
 {
 	vec4_t r;
 	_mm_store_si128_a((__m128i*)&r.x, _mm_or_si128(_mm_and_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x80000000)), _mm_set1_epi32(0x3F800000)));
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_invert_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_invert)(vec4_t v)
 {
 	vec4_t r;
 	_mm_store_si128_a((__m128i*)&r.x, _mm_xor_si128(_mm_load_si128_a((__m128i*)&v.x), _mm_set1_epi32(0x80000000)));
 	return r;
 }
 
-mathsimd_func(real_t,vec4_dot_sse3)(vec4_t v1, vec4_t v2)
+mathsimd_func(real_t,vec4_dot)(vec4_t v1, vec4_t v2)
 {
 	__m128 r1 = _mm_mul_ps(_mm_load_ps_a(&v1.x), _mm_load_ps_a(&v2.x));
 	__m128 r2 = _mm_hadd_ps(r1, r1);
@@ -86,7 +93,7 @@ mathsimd_func(real_t,vec4_dot_sse3)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(real_t,vec4_length_sse3)(vec4_t v)
+mathsimd_func(real_t,vec4_length)(vec4_t v)
 {
 	__m128 mv = _mm_load_ps_a(&v.x);
 	__m128 m = _mm_mul_ps(mv, mv);
@@ -99,7 +106,7 @@ mathsimd_func(real_t,vec4_length_sse3)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_normalize_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_normalize)(vec4_t v)
 {
 	vec4_t r;
 	__m128 mv = _mm_load_ps_a(&v.x);
@@ -127,7 +134,7 @@ int mathutil_sse3_implements()
 
 #else // MATHUTIL_USE_DOUBLE
 
-mathsimd_func(vec4_t,vec4_abs_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_abs)(vec4_t v)
 {
 	vec4_t r;
 	const ALIGNED_(16) int64_t ins[2] = {0x7fffffffffffffffll, 0x7fffffffffffffffll};
@@ -137,7 +144,7 @@ mathsimd_func(vec4_t,vec4_abs_sse3)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_sgn_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_sgn)(vec4_t v)
 {
 	vec4_t r;
 	const ALIGNED_(16) int64_t isgnb[2] = {0x8000000000000000ll, 0x8000000000000000ll};
@@ -149,7 +156,7 @@ mathsimd_func(vec4_t,vec4_sgn_sse3)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_invert_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_invert)(vec4_t v)
 {
 	vec4_t r;
 	const ALIGNED_(16) int64_t isgnb[2] = {0x8000000000000000ll, 0x8000000000000000ll};
@@ -159,7 +166,7 @@ mathsimd_func(vec4_t,vec4_invert_sse3)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(real_t,vec4_dot_sse3)(vec4_t v1, vec4_t v2)
+mathsimd_func(real_t,vec4_dot)(vec4_t v1, vec4_t v2)
 {
 	__m128d mxaddz_yaddw = _mm_add_pd(
 		_mm_mul_pd(_mm_load_pd_a(&v1.x), _mm_load_pd_a(&v2.x)),
@@ -171,7 +178,7 @@ mathsimd_func(real_t,vec4_dot_sse3)(vec4_t v1, vec4_t v2)
 	return r;
 }
 
-mathsimd_func(real_t,vec4_length_sse3)(vec4_t v)
+mathsimd_func(real_t,vec4_length)(vec4_t v)
 {
 	__m128d mvxy = _mm_load_pd_a(&v.x);
 	__m128d mvzw = _mm_load_pd_a(&v.z);
@@ -185,7 +192,7 @@ mathsimd_func(real_t,vec4_length_sse3)(vec4_t v)
 	return r;
 }
 
-mathsimd_func(vec4_t,vec4_normalize_sse3)(vec4_t v)
+mathsimd_func(vec4_t,vec4_normalize)(vec4_t v)
 {
 	vec4_t r;
 	__m128d mvxy = _mm_load_pd_a(&v.x);

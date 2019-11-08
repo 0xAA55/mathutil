@@ -31,7 +31,7 @@
 #include"mathutil_conf.h"
 #include"mathutil.h"
 
-#define math_func(r,n,arg) r n ## _sse arg
+#define math_func(r,n,arg,carg) r n ## _sse arg
 
 #include"mathutil_funclist.h"
 

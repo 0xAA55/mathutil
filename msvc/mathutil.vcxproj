@@ -183,7 +183,6 @@
     <ClInclude Include="..\mathutil.h" />
     <ClInclude Include="..\mathutil_conf.h" />
     <ClInclude Include="..\mathutil_funclist.h" />
-    <ClInclude Include="..\mathutil_funclist_withcarg.h" />
     <ClInclude Include="..\mathutil_ref.h" />
     <ClInclude Include="..\mathutil_sse.h" />
     <ClInclude Include="..\mathutil_sse2.h" />

@@ -188,6 +188,7 @@
     <ClInclude Include="..\mathutil_sse2.h" />
     <ClInclude Include="..\mathutil_sse3.h" />
     <ClInclude Include="..\mathutil_sse41.h" />
+    <ClInclude Include="..\mathutil_sse_common.h" />
     <ClInclude Include="..\mathutil_ssse3.h" />
   </ItemGroup>
   <ItemGroup>

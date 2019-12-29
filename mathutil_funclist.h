@@ -26,23 +26,10 @@
 #  define math_func(r,n,arg,carg) r n arg
 #endif
 
-#ifndef imp_ctrl
-#  define imp_ctrl 1
-#endif
-
 // Functions for scalar numbers
-#if !r_rnd_imp
 math_func(real_t, r_rnd, (uint32_t* p_seed), (p_seed));
-#define r_rnd_imp imp_ctrl
-#endif
-#if !r_sin_imp
 math_func(real_t, r_sin, (real_t x), (x));
-#define r_sin_imp imp_ctrl
-#endif
-#if !r_cos_imp
 math_func(real_t, r_cos, (real_t x), (x));
-#define r_cos_imp imp_ctrl
-#endif
 math_func(real_t, r_tan, (real_t x), (x));
 math_func(real_t, r_abs, (real_t x), (x));
 math_func(real_t, r_sgn, (real_t x), (x));

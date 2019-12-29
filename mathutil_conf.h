@@ -72,7 +72,7 @@
 #  define ALIGNED_(x)
 #  if !MATHUTIL_DETECT_CPU
 #    ifndef MATHUTIL_REFONLY
-#      define MATHUTIL_REFONLY 1
+#      define MATHUTIL_REFONLY 0
 #    endif
 #  endif
 #  ifndef MATHUTIL_VAR_NOT_ALIGNED
@@ -144,10 +144,4 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if MATHUTIL_DETECT_CPU
-#define math_func(r,n,arg,carg) math_extern r(*n)arg
-#endif // !MATHUTIL_DETECT_CPU
-#include "mathutil_funclist.h"
-#undef math_func
-
-#endif _MATHUTIL_CONF_H_
+#endif // _MATHUTIL_CONF_H_

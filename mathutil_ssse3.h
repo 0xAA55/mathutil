@@ -20,20 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef _MATHUTIL_SSSE3_H_
-#define _MATHUTIL_SSSE3_H_
-
 #include"mathutil_conf.h"
-#include"mathutil.h"
 
-#define math_func(r,n,arg,carg) r n ## _ssse3 arg
+#if HAVE_SSSE3 || __INTELLISENSE__
 
-#include"mathutil_funclist.h"
+#ifndef ssse3_func
+  #if __INTELLISENSE__
+    #define ssse3_func(r,n) r n
+    #include<tmmintrin.h>
+  #endif // __INTELLISENSE__
+#endif
 
-#undef math_func
+#include"mathutil_sse_common.h"
 
-#if MATHUTIL_DETECT_CPU
-int mathutil_ssse3_implements();
-#endif // !MATHUTIL_DETECT_CPU
-
-#endif // _MATHUTIL_MMX_H_
+#endif

@@ -92,6 +92,8 @@ math_func(mat4_t, mat4_rot_euler, (real_t yaw, real_t pitch, real_t roll), (yaw,
 math_func(mat4_t, mat4_from_quat, (quat_t q), (q));
 math_func(mat4_t, mat4_from_quat_transpose, (quat_t q), (q));
 math_func(mat4_t, mat4_transpose, (mat4_t m), (m));
+math_func(mat4_t, mat4_det, (real_t m), (m);
+math_func(int, mat4_inverse, (mat4_t m, real_p det_out, mat4_p mat_out), (m, det_out, mat_out);
 math_func(mat4_t, mat4_add, (mat4_t l, mat4_t r), (l, r));
 math_func(mat4_t, mat4_add_s, (mat4_t m, real_t s), (m, s));
 math_func(mat4_t, mat4_add_transpose, (mat4_t l, mat4_t r), (l, r));

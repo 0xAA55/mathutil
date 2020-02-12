@@ -229,8 +229,8 @@ sse_func(real_t, r_log)(real_t x)
 #define r_log_implemented 1
 #endif
 
-#if !vec4_implemented || MATHUTIL_DETECT_CPU
-sse_func(vec4_t, vec4)(real_t x, real_t y, real_t z, real_t w)
+#if !vec4_t_ctor_implemented || MATHUTIL_DETECT_CPU
+sse_func(vec4_t, vec4_t_ctor)(real_t x, real_t y, real_t z, real_t w)
 {
 	ALIGNED_(16) vec4_t v;
 	v.x = x;
@@ -242,7 +242,7 @@ sse_func(vec4_t, vec4)(real_t x, real_t y, real_t z, real_t w)
 #endif
 	return v;
 }
-#define vec4_implemented 1
+#define vec4_t_ctor_implemented 1
 #endif
 
 #if !vec4_flushcomp_implemented || MATHUTIL_DETECT_CPU
@@ -581,8 +581,8 @@ sse_func(vec4_t, vec4_slerp)(vec4_t v1, vec4_t v2, real_t s)
 // register MUST be loaded from the return of the reference implement.
 //=============================================================================
 
-#if !quat_implemented || MATHUTIL_DETECT_CPU
-sse_func(quat_t, quat)(real_t x, real_t y, real_t z, real_t w)
+#if !quat_t_ctor_implemented || MATHUTIL_DETECT_CPU
+sse_func(quat_t, quat_t_ctor)(real_t x, real_t y, real_t z, real_t w)
 {
 	ALIGNED_(16) quat_t q;
 	q.x = x;
@@ -594,7 +594,7 @@ sse_func(quat_t, quat)(real_t x, real_t y, real_t z, real_t w)
 #endif
 	return q;
 }
-#define quat_implemented 1
+#define quat_t_ctor_implemented 1
 #endif
 
 #if !quat_flushcomp_implemented || MATHUTIL_DETECT_CPU
@@ -664,8 +664,8 @@ sse_func(quat_t, quat_add_vec)(quat_t q, vec4_t v, real_t s)
 #define quat_add_vec_implemented 1
 #endif
 
-#if !mat4_implemented || MATHUTIL_DETECT_CPU
-sse_func(mat4_t, mat4)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
+#if !mat4_t_ctor_implemented || MATHUTIL_DETECT_CPU
+sse_func(mat4_t, mat4_t_ctor)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
 {
 	ALIGNED_(16) mat4_t r;
 	r.x = x;
@@ -674,7 +674,7 @@ sse_func(mat4_t, mat4)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
 	r.w = w;
 	return r;
 }
-#define mat4_implemented 1
+#define mat4_t_ctor_implemented 1
 #endif
 
 #if !mat4_flushcomp_implemented || MATHUTIL_DETECT_CPU

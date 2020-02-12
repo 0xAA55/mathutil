@@ -58,6 +58,8 @@
 #  if defined(_M_AMD64)
 #    define __amd64__ 1
 #  endif
+#  pragma warning(disable:4201)
+#  pragma warning(disable:4239)
 #elif defined(__GNUC__) || defined(__clang__)
 #  define COMPILER_FLAVOR 2
 #  define ALIGNED_(x) __attribute__ ((aligned(x)))
@@ -141,7 +143,12 @@
 #define MATHUTIL_REFONLY (!(HAVE_SSE || HAVE_SSE2 || HAVE_SSE3 || HAVE_SSSE3 || HAVE_SSE41 || HAVE_AVX || HAVE_XOP || HAVE_AVX2))
 #endif // !defined(MATHUTIL_REFONLY)
 
-#include <stddef.h>
-#include <stdint.h>
+#ifdef __cplusplus
+  #include <cstddef>
+  #include <cstdint>
+#else
+  #include <stddef.h>
+  #include <stdint.h>
+#endif
 
 #endif // _MATHUTIL_CONF_H_

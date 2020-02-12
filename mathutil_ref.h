@@ -237,8 +237,8 @@ ref_func(real_t, r_slerp)(real_t a, real_t b, real_t s)
 #define r_slerp_implemented 1
 #endif
 
-#if !vec4_implemented || MATHUTIL_DETECT_CPU
-ref_func(vec4_t, vec4)(real_t x, real_t y, real_t z, real_t w)
+#if !vec4_t_ctor_implemented || MATHUTIL_DETECT_CPU
+ref_func(vec4_t, vec4_t_ctor)(real_t x, real_t y, real_t z, real_t w)
 {
 	vec4_t v;
 	v.x = x;
@@ -247,7 +247,7 @@ ref_func(vec4_t, vec4)(real_t x, real_t y, real_t z, real_t w)
 	v.w = w;
 	return v;
 }
-#define vec4_implemented 1
+#define vec4_t_ctor_implemented 1
 #endif
 
 #if !vec4_flushcomp_implemented || MATHUTIL_DETECT_CPU
@@ -531,8 +531,8 @@ ref_func(vec4_t, vec4_rot_quat)(vec4_t v, quat_t q)
 #define vec4_rot_quat_implemented 1
 #endif
 
-#if !quat_implemented || MATHUTIL_DETECT_CPU
-ref_func(quat_t, quat)(real_t x, real_t y, real_t z, real_t w)
+#if !quat_t_ctor_implemented || MATHUTIL_DETECT_CPU
+ref_func(quat_t, quat_t_ctor)(real_t x, real_t y, real_t z, real_t w)
 {
 	quat_t r;
 	r.x = x;
@@ -541,7 +541,7 @@ ref_func(quat_t, quat)(real_t x, real_t y, real_t z, real_t w)
 	r.w = w;
 	return r;
 }
-#define quat_implemented 1
+#define quat_t_ctor_implemented 1
 #endif
 
 #if !quat_flushcomp_implemented || MATHUTIL_DETECT_CPU
@@ -590,8 +590,8 @@ ref_func(quat_t, quat_add_vec)(quat_t q, vec4_t v, real_t s)
 #define quat_add_vec_implemented 1
 #endif
 
-#if !mat4_implemented || MATHUTIL_DETECT_CPU
-ref_func(mat4_t, mat4)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
+#if !mat4_t_ctor_implemented || MATHUTIL_DETECT_CPU
+ref_func(mat4_t, mat4_t_ctor)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
 {
 	mat4_t r;
 	r.x = x;
@@ -600,7 +600,7 @@ ref_func(mat4_t, mat4)(vec4_t x, vec4_t y, vec4_t z, vec4_t w)
 	r.w = w;
 	return r;
 }
-#define mat4_implemented 1
+#define mat4_t_ctor_implemented 1
 #endif
 
 #if !mat4_flushcomp_implemented || MATHUTIL_DETECT_CPU
@@ -744,6 +744,162 @@ ref_func(mat4_t, mat4_transpose)(mat4_t m)
 	);
 }
 #define mat4_transpose_implemented 1
+#endif
+
+#if !mat4_det_implemented || MATHUTIL_DETECT_CPU
+ref_func(real_t, mat4_det)(mat4_t m)
+{
+	real_t det;
+	mat4_inverse(m, &det, NULL);
+	return det;
+}
+#define mat4_det_implemented 1
+#endif
+
+#if !mat4_inverse_implemented || MATHUTIL_DETECT_CPU
+ref_func(int, mat4_inverse)(mat4_t m, real_p det_out, mat4_p mat_out)
+{
+	mat4_t tmp;
+	real_t det;
+
+	// Implemention referenced from https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
+
+	tmp.x.x =
+		m.y.y * m.z.z * m.w.w -
+		m.y.y * m.z.w * m.w.z -
+		m.z.y * m.y.z * m.w.w +
+		m.z.y * m.y.w * m.w.z +
+		m.w.y * m.y.z * m.z.w -
+		m.w.y * m.y.w * m.z.z;
+
+	tmp.y.x =
+		-m.y.x * m.z.z * m.w.w +
+		m.y.x * m.z.w * m.w.z +
+		m.z.x * m.y.z * m.w.w -
+		m.z.x * m.y.w * m.w.z -
+		m.w.x * m.y.z * m.z.w +
+		m.w.x * m.y.w * m.z.z;
+
+	tmp.z.x =
+		m.y.x * m.z.y * m.w.w -
+		m.y.x * m.z.w * m.w.y -
+		m.z.x * m.y.y * m.w.w +
+		m.z.x * m.y.w * m.w.y +
+		m.w.x * m.y.y * m.z.w -
+		m.w.x * m.y.w * m.z.y;
+
+	tmp.w.x =
+		-m.y.x * m.z.y * m.w.z +
+		m.y.x * m.z.z * m.w.y +
+		m.z.x * m.y.y * m.w.z -
+		m.z.x * m.y.z * m.w.y -
+		m.w.x * m.y.y * m.z.z +
+		m.w.x * m.y.z * m.z.y;
+
+	tmp.x.y =
+		-m.x.y * m.z.z * m.w.w +
+		m.x.y * m.z.w * m.w.z +
+		m.z.y * m.x.z * m.w.w -
+		m.z.y * m.x.w * m.w.z -
+		m.w.y * m.x.z * m.z.w +
+		m.w.y * m.x.w * m.z.z;
+
+	tmp.y.y =
+		m.x.x * m.z.z * m.w.w -
+		m.x.x * m.z.w * m.w.z -
+		m.z.x * m.x.z * m.w.w +
+		m.z.x * m.x.w * m.w.z +
+		m.w.x * m.x.z * m.z.w -
+		m.w.x * m.x.w * m.z.z;
+
+	tmp.z.y =
+		-m.x.x * m.z.y * m.w.w +
+		m.x.x * m.z.w * m.w.y +
+		m.z.x * m.x.y * m.w.w -
+		m.z.x * m.x.w * m.w.y -
+		m.w.x * m.x.y * m.z.w +
+		m.w.x * m.x.w * m.z.y;
+
+	tmp.w.y =
+		m.x.x * m.z.y * m.w.z -
+		m.x.x * m.z.z * m.w.y -
+		m.z.x * m.x.y * m.w.z +
+		m.z.x * m.x.z * m.w.y +
+		m.w.x * m.x.y * m.z.z -
+		m.w.x * m.x.z * m.z.y;
+
+	tmp.x.z =
+		m.x.y * m.y.z * m.w.w -
+		m.x.y * m.y.w * m.w.z -
+		m.y.y * m.x.z * m.w.w +
+		m.y.y * m.x.w * m.w.z +
+		m.w.y * m.x.z * m.y.w -
+		m.w.y * m.x.w * m.y.z;
+
+	tmp.y.z =
+		-m.x.x * m.y.z * m.w.w +
+		m.x.x * m.y.w * m.w.z +
+		m.y.x * m.x.z * m.w.w -
+		m.y.x * m.x.w * m.w.z -
+		m.w.x * m.x.z * m.y.w +
+		m.w.x * m.x.w * m.y.z;
+
+	tmp.z.z =
+		m.x.x * m.y.y * m.w.w -
+		m.x.x * m.y.w * m.w.y -
+		m.y.x * m.x.y * m.w.w +
+		m.y.x * m.x.w * m.w.y +
+		m.w.x * m.x.y * m.y.w -
+		m.w.x * m.x.w * m.y.y;
+
+	tmp.w.z =
+		-m.x.x * m.y.y * m.w.z +
+		m.x.x * m.y.z * m.w.y +
+		m.y.x * m.x.y * m.w.z -
+		m.y.x * m.x.z * m.w.y -
+		m.w.x * m.x.y * m.y.z +
+		m.w.x * m.x.z * m.y.y;
+
+	tmp.x.w =
+		-m.x.y * m.y.z * m.z.w +
+		m.x.y * m.y.w * m.z.z +
+		m.y.y * m.x.z * m.z.w -
+		m.y.y * m.x.w * m.z.z -
+		m.z.y * m.x.z * m.y.w +
+		m.z.y * m.x.w * m.y.z;
+
+	tmp.y.w =
+		m.x.x * m.y.z * m.z.w -
+		m.x.x * m.y.w * m.z.z -
+		m.y.x * m.x.z * m.z.w +
+		m.y.x * m.x.w * m.z.z +
+		m.z.x * m.x.z * m.y.w -
+		m.z.x * m.x.w * m.y.z;
+
+	tmp.z.w =
+		-m.x.x * m.y.y * m.z.w +
+		m.x.x * m.y.w * m.z.y +
+		m.y.x * m.x.y * m.z.w -
+		m.y.x * m.x.w * m.z.y -
+		m.z.x * m.x.y * m.y.w +
+		m.z.x * m.x.w * m.y.y;
+
+	tmp.w.w =
+		m.x.x * m.y.y * m.z.z -
+		m.x.x * m.y.z * m.z.y -
+		m.y.x * m.x.y * m.z.z +
+		m.y.x * m.x.z * m.z.y +
+		m.z.x * m.x.y * m.y.z -
+		m.z.x * m.x.z * m.y.y;
+
+	det = m.x.x * tmp.x.x + m.x.y * tmp.y.x + m.x.z * tmp.z.x + m.x.w * tmp.w.x;
+	if (det_out) *det_out = det;
+	if (r_abs(det) <= r_epsilon) return 0;
+	if (!mat_out) return 0;
+	*mat_out = mat4_mul_s(tmp, r_1 / det);
+	return 1;
+}
+#define mat4_inverse_implemented 1
 #endif
 
 #if !mat4_add_implemented || MATHUTIL_DETECT_CPU

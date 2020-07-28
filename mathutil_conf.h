@@ -143,12 +143,7 @@
 #define MATHUTIL_REFONLY (!(HAVE_SSE || HAVE_SSE2 || HAVE_SSE3 || HAVE_SSSE3 || HAVE_SSE41 || HAVE_AVX || HAVE_XOP || HAVE_AVX2))
 #endif // !defined(MATHUTIL_REFONLY)
 
-#ifdef __cplusplus
-  #include <cstddef>
-  #include <cstdint>
-#else
-  #include <stddef.h>
-  #include <stdint.h>
-#endif
+#include <stddef.h>
+#include <stdint.h>
 
 #endif // _MATHUTIL_CONF_H_

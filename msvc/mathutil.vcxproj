@@ -198,12 +198,6 @@
   <ItemGroup>
     <ClCompile Include="..\cpudetect.c" />
     <ClCompile Include="..\mathutil.c" />
-    <ClCompile Include="..\mathutil_cpp.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCpp</CompileAs>
-    </ClCompile>
     <ClCompile Include="..\mathutil_ref.c" />
     <ClCompile Include="..\mathutil_sse.c" />
     <ClCompile Include="..\mathutil_sse2.c" />

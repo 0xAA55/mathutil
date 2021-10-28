@@ -680,12 +680,12 @@ ref_func(mat4_t, mat4_rot_axis)(vec4_t axis, real_t angle)
 ref_func(mat4_t, mat4_rot_euler)(real_t yaw, real_t pitch, real_t roll)
 {
 	real_t
-		sr = r_sin(yaw),
-		cr = r_cos(yaw),
+		sy = r_sin(yaw),
+		cy = r_cos(yaw),
 		sp = r_sin(pitch),
 		cp = r_cos(pitch),
-		sy = r_sin(roll),
-		cy = r_cos(roll);
+		sr = r_sin(roll),
+		cr = r_cos(roll);
 
 	real_t
 		srcp = sr * cp,

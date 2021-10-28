@@ -780,7 +780,7 @@ sse_func(mat4_t, mat4_rot_axis)(vec4_t axis, real_t angle)
 }
 #define mat4_rot_axis_implemented 1
 #endif
-
+/*
 #if !mat4_rot_euler_implemented || MATHUTIL_DETECT_CPU
 sse_func(mat4_t, mat4_rot_euler)(real_t yaw, real_t pitch, real_t roll)
 {
@@ -832,6 +832,7 @@ sse_func(mat4_t, mat4_rot_euler)(real_t yaw, real_t pitch, real_t roll)
 }
 #define mat4_rot_euler_implemented 1
 #endif
+*/
 
 #if !mat4_from_quat_implemented || MATHUTIL_DETECT_CPU
 sse_func(mat4_t, mat4_from_quat)(quat_t q)
